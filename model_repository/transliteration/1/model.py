@@ -10,7 +10,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Transliteration model for script conversion.."""
+    """Transliteration model for script conversion."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -301,7 +301,7 @@ class TritonPythonModel:
         return responses
 
     def _transliterate(self, text: str, source_script: str, target_script: str) -> dict:
-        """Perform transliteration.."""
+        """Perform transliteration."""
         # Auto-detect source script if not specified
         if source_script == "auto":
             source_script = self._detect_script(text)
@@ -341,7 +341,7 @@ class TritonPythonModel:
         }
 
     def _detect_script(self, text: str) -> str:
-        """Detect the script of the text.."""
+        """Detect the script of the text."""
         scripts_count = {
             "latin": 0,
             "devanagari": 0,
@@ -373,7 +373,7 @@ class TritonPythonModel:
         return max(scripts_count, key=scripts_count.get) if any(scripts_count.values()) else "unknown"
 
     def _apply_mapping(self, text: str, mapping: dict[str, str]) -> str:
-        """Apply character mapping for transliteration.."""
+        """Apply character mapping for transliteration."""
         result = []
         i = 0
         while i < len(text):

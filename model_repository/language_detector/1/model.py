@@ -17,7 +17,7 @@ DetectorFactory.seed = 0
 
 
 class TritonPythonModel:
-    """Language detection model using langdetect.."""
+    """Language detection model using langdetect."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -108,7 +108,7 @@ class TritonPythonModel:
         return responses
 
     def _detect_language(self, text: str) -> dict[str, Any]:
-        """Detect language of text with confidence scores.."""
+        """Detect language of text with confidence scores."""
         # Handle empty or very short text
         if not text or len(text.strip()) < 3:
             return {

@@ -11,7 +11,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Translation model supporting multiple language pairs.."""
+    """Translation model supporting multiple language pairs."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -136,7 +136,7 @@ class TritonPythonModel:
         return responses
 
     def _translate(self, text: str, source_lang: str, target_lang: str) -> dict:
-        """Perform translation.."""
+        """Perform translation."""
         # Auto-detect source language if not specified
         if source_lang == "auto":
             source_lang = self._detect_language(text)
@@ -191,7 +191,7 @@ class TritonPythonModel:
         }
 
     def _detect_language(self, text: str) -> str:
-        """Detect the language of the text.."""
+        """Detect the language of the text."""
         # Simple heuristic-based detection for demonstration
         # In production, use langdetect or fasttext
 
@@ -221,7 +221,7 @@ class TritonPythonModel:
         return "en"  # Default to English
 
     def _simple_translate(self, text: str, lang_pair: str) -> str:
-        """Simple dictionary-based translation for demonstration.."""
+        """Simple dictionary-based translation for demonstration."""
         if lang_pair not in self.simple_translations:
             return text
 
@@ -245,7 +245,7 @@ class TritonPythonModel:
         return " ".join(translated_words)
 
     def _get_alternatives(self, text: str, lang_pair: str) -> list[str]:
-        """Get alternative translations.."""
+        """Get alternative translations."""
         # In production, this would return multiple translation candidates
         alternatives = []
 
@@ -257,7 +257,7 @@ class TritonPythonModel:
         return alternatives[:3]  # Return top 3 alternatives
 
     def finalize(self):
-        """Clean up resources.."""
+        """Clean up resources."""
         # Unload models if loaded
         for model in self.models.values():
             del model

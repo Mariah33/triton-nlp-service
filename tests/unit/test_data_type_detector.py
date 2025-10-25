@@ -1,4 +1,4 @@
-"""Unit tests for data type detector ML model.."""
+"""Unit tests for data type detector ML model."""
 
 import json
 import sys
@@ -12,11 +12,11 @@ mock_pb_utils = MagicMock()
 
 
 class TestDataTypeDetectorML:
-    """Test suite for ML-based data type detection.."""
+    """Test suite for ML-based data type detection."""
 
     @pytest.fixture
     def model_config(self):
-        """Model configuration fixture.."""
+        """Model configuration fixture."""
         return {
             "name": "data_type_detector_ml",
             "backend": "python",
@@ -25,7 +25,7 @@ class TestDataTypeDetectorML:
 
     @pytest.fixture
     def mock_model(self, model_config):
-        """Create a mock model instance.."""
+        """Create a mock model instance."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             # Import after patching
             sys.path.insert(0, "model_repository/data_type_detector_ml/1")
@@ -46,7 +46,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_email_detection(self, mock_model):
-        """Test email address detection.."""
+        """Test email address detection."""
         test_cases = [
             ("john.doe@example.com", True, 0.9),
             ("admin@company.org", True, 0.9),
@@ -65,7 +65,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_phone_number_detection(self, mock_model):
-        """Test phone number detection.."""
+        """Test phone number detection."""
         test_cases = [
             ("+1-555-123-4567", True),
             ("(555) 123-4567", True),
@@ -84,7 +84,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_credit_card_detection(self, mock_model):
-        """Test credit card number detection.."""
+        """Test credit card number detection."""
         # Valid test credit card numbers (Luhn valid)
         valid_cards = [
             "4532015112830366",  # Visa
@@ -103,14 +103,14 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_ssn_masking(self, mock_model):
-        """Test SSN masking for privacy.."""
+        """Test SSN masking for privacy."""
         ssn = "123-45-6789"
         masked = mock_model._mask_sensitive_data(ssn, "ssn")
         assert masked == "***-**-6789"
 
     @pytest.mark.unit
     def test_credit_card_masking(self, mock_model):
-        """Test credit card masking.."""
+        """Test credit card masking."""
         card = "4532-0151-1283-0366"
         masked = mock_model._mask_sensitive_data(card, "credit_card")
         assert masked == "****-****-****-0366"
@@ -128,13 +128,13 @@ class TestDataTypeDetectorML:
         ],
     )
     def test_category_classification(self, mock_model, text, expected_category):
-        """Test category classification for different data types.."""
+        """Test category classification for different data types."""
         # This would test the _get_category method
         # Implementation depends on model structure
 
     @pytest.mark.unit
     def test_deduplication(self, mock_model):
-        """Test deduplication of detection results.."""
+        """Test deduplication of detection results."""
         detections = [
             {"type": "email", "confidence": 0.8, "value": "test@test.com"},
             {"type": "email", "confidence": 0.9, "value": "test@test.com"},
@@ -149,7 +149,7 @@ class TestDataTypeDetectorML:
     @pytest.mark.integration
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="GPU not available")
     def test_gpu_inference(self, mock_model):
-        """Test GPU inference if available.."""
+        """Test GPU inference if available."""
         mock_model.device = torch.device("cuda")
         text = "Contact john.doe@example.com or call 555-1234"
 
@@ -163,7 +163,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_zero_shot_classification(self, mock_model):
-        """Test zero-shot classification.."""
+        """Test zero-shot classification."""
         mock_model.zero_shot_classifier.return_value = {
             "labels": ["email address", "phone number", "general text"],
             "scores": [0.9, 0.05, 0.05],
@@ -177,7 +177,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.unit
     def test_presidio_integration(self, mock_model):
-        """Test Presidio analyzer integration.."""
+        """Test Presidio analyzer integration."""
         from unittest.mock import MagicMock
 
         # Mock Presidio result
@@ -197,7 +197,7 @@ class TestDataTypeDetectorML:
 
     @pytest.mark.benchmark
     def test_performance_benchmark(self, mock_model, benchmark):
-        """Benchmark detection performance.."""
+        """Benchmark detection performance."""
         text = "Contact john.doe@example.com or call 555-1234"
 
         # Benchmark the detection
@@ -206,11 +206,11 @@ class TestDataTypeDetectorML:
 
 
 class TestDataTypeDetectorRegex:
-    """Test suite for regex-based data type detection.."""
+    """Test suite for regex-based data type detection."""
 
     @pytest.fixture
     def regex_model(self):
-        """Create regex-based model for comparison.."""
+        """Create regex-based model for comparison."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             from model_repository.data_type_detector.model import TritonPythonModel
 
@@ -230,13 +230,13 @@ class TestDataTypeDetectorRegex:
         ],
     )
     def test_pattern_matching(self, regex_model, text, expected_type):
-        """Test basic pattern matching.."""
+        """Test basic pattern matching."""
         result = regex_model._detect_data_types(text)
         assert result["primary_type"] == expected_type
 
     @pytest.mark.unit
     def test_regex_vs_ml_comparison(self, mock_model, regex_model):
-        """Compare regex and ML detection accuracy.."""
+        """Compare regex and ML detection accuracy."""
         test_cases = [
             "john dot doe at gmail dot com",  # Obfuscated email
             "call me at five five five 1234",  # Natural language phone

@@ -10,7 +10,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Postprocessing model to aggregate and format results.."""
+    """Postprocessing model to aggregate and format results."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -88,7 +88,7 @@ class TritonPythonModel:
         return responses
 
     def _get_string_tensor(self, request, name: str, optional: bool = False) -> list[str]:
-        """Helper to get string tensor values.."""
+        """Helper to get string tensor values."""
         tensor = pb_utils.get_input_tensor_by_name(request, name)
         if tensor is None:
             if optional:
@@ -100,7 +100,7 @@ class TritonPythonModel:
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in values]
 
     def _format_data_type_result(self, data_type_dict: dict) -> dict:
-        """Format data type detection results.."""
+        """Format data type detection results."""
         if not data_type_dict:
             return {"detected": False, "type": "unknown"}
 
@@ -118,14 +118,14 @@ class TritonPythonModel:
                     "subtype": detection.get("subtype", None),
                     "category": detection.get("category"),
                     "confidence": detection.get("confidence"),
-                    "value": detection.get("value", "")[:50] + "..." if len(detection.get("value", "")) > 50 else detection.get("value", ""),
+                    "value": detection.get("value", "")[:50] + ".." if len(detection.get("value", "")) > 50 else detection.get("value", ""),
                 }
             )
 
         return formatted
 
     def _format_ner_result(self, ner_dict: dict) -> dict:
-        """Format NER results.."""
+        """Format NER results."""
         if not ner_dict:
             return {"entities": [], "count": 0}
 
@@ -155,7 +155,7 @@ class TritonPythonModel:
         return formatted
 
     def _format_transliteration_result(self, transliteration_dict: dict) -> dict:
-        """Format transliteration results.."""
+        """Format transliteration results."""
         if not transliteration_dict:
             return {"success": False}
 
@@ -170,7 +170,7 @@ class TritonPythonModel:
         }
 
     def _format_translation_result(self, translation_dict: dict) -> dict:
-        """Format translation results.."""
+        """Format translation results."""
         if not translation_dict:
             return {"success": False}
 
@@ -186,7 +186,7 @@ class TritonPythonModel:
         }
 
     def _generate_summary(self, result: dict) -> dict:
-        """Generate a summary of all results.."""
+        """Generate a summary of all results."""
         summary = {
             "text_length": len(result["original_text"]),
             "services_applied": list(result["results"].keys()),

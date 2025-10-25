@@ -1,4 +1,4 @@
-"""Pytest configuration and fixtures.."""
+"""Pytest configuration and fixtures."""
 
 import json
 import os
@@ -25,7 +25,7 @@ def pytest_configure(config):
 
 
 def pytest_addoption(parser):
-    """Add custom command line options.."""
+    """Add custom command line options."""
     parser.addoption("--run-slow", action="store_true", default=False, help="Run slow tests")
     parser.addoption(
         "--run-integration",
@@ -38,7 +38,7 @@ def pytest_addoption(parser):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Modify test collection based on markers.."""
+    """Modify test collection based on markers."""
     skip_slow = pytest.mark.skip(reason="Need --run-slow option to run")
     skip_integration = pytest.mark.skip(reason="Need --run-integration option to run")
     skip_gpu = pytest.mark.skip(reason="Need --run-gpu option to run")
@@ -57,13 +57,13 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.fixture(scope="session")
 def test_data_dir():
-    """Path to test data directory.."""
+    """Path to test data directory."""
     return Path(__file__).parent / "data"
 
 
 @pytest.fixture(scope="session")
 def sample_texts():
-    """Sample texts for testing.."""
+    """Sample texts for testing."""
     return {
         "email": "john.doe@example.com",
         "phone": "+1-555-123-4567",
@@ -81,7 +81,7 @@ def sample_texts():
 
 @pytest.fixture(scope="session")
 def mock_triton_response():
-    """Mock Triton server response.."""
+    """Mock Triton server response."""
     return {
         "result": json.dumps(
             {
@@ -102,7 +102,7 @@ def mock_triton_response():
 
 @pytest.fixture
 def mock_ml_models():
-    """Mock ML models for testing.."""
+    """Mock ML models for testing."""
     from unittest.mock import MagicMock
 
     return {
@@ -116,7 +116,7 @@ def mock_ml_models():
 
 @pytest.fixture(autouse=True)
 def reset_environment():
-    """Reset environment variables before each test.."""
+    """Reset environment variables before each test."""
     original_env = os.environ.copy()
     yield
     os.environ.clear()
@@ -126,7 +126,7 @@ def reset_environment():
 # Performance tracking
 @pytest.fixture
 def track_performance(request):
-    """Track test performance.."""
+    """Track test performance."""
     import time
 
     start_time = time.time()
@@ -137,7 +137,7 @@ def track_performance(request):
 # Test data generators
 @pytest.fixture
 def generate_test_emails():
-    """Generate test email addresses.."""
+    """Generate test email addresses."""
     from faker import Faker
 
     fake = Faker()
@@ -146,7 +146,7 @@ def generate_test_emails():
 
 @pytest.fixture
 def generate_test_phones():
-    """Generate test phone numbers.."""
+    """Generate test phone numbers."""
     from faker import Faker
 
     fake = Faker()
@@ -155,7 +155,7 @@ def generate_test_phones():
 
 @pytest.fixture
 def generate_test_addresses():
-    """Generate test addresses.."""
+    """Generate test addresses."""
     from faker import Faker
 
     fake = Faker()
@@ -165,7 +165,7 @@ def generate_test_addresses():
 # Mock server fixtures
 @pytest.fixture
 def mock_triton_server():
-    """Mock Triton server for testing.."""
+    """Mock Triton server for testing."""
     from unittest.mock import MagicMock
 
     server = MagicMock()
@@ -177,7 +177,7 @@ def mock_triton_server():
 
 @pytest.fixture
 def mock_fastapi_client():
-    """Mock FastAPI client.."""
+    """Mock FastAPI client."""
     from unittest.mock import MagicMock
 
     client = MagicMock()

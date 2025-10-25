@@ -12,7 +12,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """NER model for entity extraction.."""
+    """NER model for entity extraction."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -225,7 +225,7 @@ class TritonPythonModel:
         return responses
 
     def _extract_entities(self, text: str) -> list[dict[str, Any]]:
-        """Extract named entities from text.."""
+        """Extract named entities from text."""
         entities = []
 
         # Extract pattern-based entities first
@@ -262,7 +262,7 @@ class TritonPythonModel:
         return entities
 
     def _extract_persons(self, text: str) -> list[dict[str, Any]]:
-        """Extract person names.."""
+        """Extract person names."""
         entities = []
         words = text.split()
 
@@ -319,7 +319,7 @@ class TritonPythonModel:
         return entities
 
     def _extract_organizations(self, text: str) -> list[dict[str, Any]]:
-        """Extract organization names.."""
+        """Extract organization names."""
         entities = []
 
         # Look for known organizations
@@ -355,7 +355,7 @@ class TritonPythonModel:
         return entities
 
     def _extract_locations(self, text: str) -> list[dict[str, Any]]:
-        """Extract location names.."""
+        """Extract location names."""
         entities = []
 
         # Look for known locations
@@ -394,7 +394,7 @@ class TritonPythonModel:
         return entities
 
     def _resolve_overlaps(self, entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Remove overlapping entities, keeping the one with higher confidence.."""
+        """Remove overlapping entities, keeping the one with higher confidence."""
         if not entities:
             return entities
 

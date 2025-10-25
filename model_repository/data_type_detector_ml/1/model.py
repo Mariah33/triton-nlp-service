@@ -15,7 +15,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """ML-based data type detection model.."""
+    """ML-based data type detection model.""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -108,7 +108,7 @@ class TritonPythonModel:
         ]
 
     def _initialize_reference_embeddings(self) -> None:
-        """Initialize reference embeddings for similarity-based detection.."""
+        """Initialize reference embeddings for similarity-based detection."""
         if not self.sentence_encoder:
             return
 
@@ -147,7 +147,7 @@ class TritonPythonModel:
             self.reference_embeddings[dtype] = embeddings.mean(dim=0)  # Average embedding
 
     def _initialize_specialized_models(self) -> None:
-        """Initialize specialized models for specific data types.."""
+        """Initialize specialized models for specific data types."""
         # Credit card detection using specialized model
         try:
             from transformers import pipeline
@@ -213,7 +213,7 @@ class TritonPythonModel:
         return responses
 
     def _detect_data_types_ml(self, text: str) -> dict[str, Any]:
-        """Detect data types using ML models.."""
+        """Detect data types using ML models."""
         text = text.strip()
         detections = []
 
@@ -388,7 +388,7 @@ class TritonPythonModel:
         }
 
     def _detect_phone_with_library(self, text: str) -> dict[str, Any]:
-        """Detect phone numbers using phonenumbers library.."""
+        """Detect phone numbers using phonenumbers library."""
         try:
             # Try to parse with country code
             if text.startswith("+"):
@@ -425,7 +425,7 @@ class TritonPythonModel:
         return None
 
     def _get_category(self, entity_type: str) -> str:
-        """Map entity type to category.."""
+        """Map entity type to category."""
         categories = {
             "email": "contact",
             "phone": "contact",
@@ -459,11 +459,11 @@ class TritonPythonModel:
         return "other"
 
     def _get_category_from_label(self, label: str) -> str:
-        """Get category from zero-shot label.."""
+        """Get category from zero-shot label."""
         return self._get_category(label)
 
     def _mask_sensitive_data(self, text: str, dtype: str) -> str:
-        """Mask sensitive parts of detected data.."""
+        """Mask sensitive parts of detected data."""
         if dtype == "credit_card":
             # Keep only last 4 digits
             clean = re.sub(r"\D", "", text)
@@ -477,7 +477,7 @@ class TritonPythonModel:
         return text
 
     def _deduplicate_detections(self, detections: list[dict]) -> list[dict]:
-        """Remove duplicate detections, keeping highest confidence.."""
+        """Remove duplicate detections, keeping highest confidence."""
         if not detections:
             return detections
 
@@ -492,7 +492,7 @@ class TritonPythonModel:
         return sorted(by_type.values(), key=lambda x: x["confidence"], reverse=True)
 
     def _fallback_pattern_detection(self, text: str) -> dict[str, Any]:
-        """Basic pattern matching as fallback.."""
+        """Basic pattern matching as fallback."""
         # Simple patterns for common data types
         patterns = {
             "email": r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
@@ -525,7 +525,7 @@ class TritonPythonModel:
         return None
 
     def _get_available_models(self) -> list[str]:
-        """Return list of available ML models.."""
+        """Return list of available ML models."""
         models = []
         if self.presidio_analyzer:
             models.append("presidio")
@@ -542,7 +542,7 @@ class TritonPythonModel:
         return models
 
     def finalize(self):
-        """Clean up models.."""
+        """Clean up models."""
         self.pii_model = None
         self.sentence_encoder = None
         self.token_classifier = None

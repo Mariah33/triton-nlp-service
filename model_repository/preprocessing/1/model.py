@@ -9,10 +9,10 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Preprocessing model for text normalization and preparation.."""
+    """Preprocessing model for text normalization and preparation."""
 
     def initialize(self, args):
-        """`initialize` is called only once when the model is being loaded.."""
+        """`initialize` is called only once when the model is being loaded."""
         self.model_config = model_config = json.loads(args["model_config"])
 
         # Get output configurations
@@ -61,7 +61,7 @@ class TritonPythonModel:
         return responses
 
     def _normalize_text(self, text: str) -> str:
-        """Normalize text for processing.."""
+        """Normalize text for processing."""
         # Remove excessive whitespace
         text = " ".join(text.split())
 
@@ -75,7 +75,7 @@ class TritonPythonModel:
         return text.strip()
 
     def _extract_metadata(self, text: str) -> dict[str, Any]:
-        """Extract basic metadata from text.."""
+        """Extract basic metadata from text."""
         return {
             "original_length": len(text),
             "word_count": len(text.split()),
@@ -85,7 +85,7 @@ class TritonPythonModel:
         }
 
     def _detect_scripts(self, text: str) -> list[str]:
-        """Detect writing scripts in text.."""
+        """Detect writing scripts in text."""
         scripts = []
 
         # Check for various scripts
@@ -105,4 +105,4 @@ class TritonPythonModel:
         return scripts if scripts else ["unknown"]
 
     def finalize(self):
-        """`finalize` is called only once when the model is being unloaded.."""
+        """`finalize` is called only once when the model is being unloaded."""

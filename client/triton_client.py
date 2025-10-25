@@ -34,7 +34,7 @@ class TritonNLPClient:
         self.check_models()
 
     def check_models(self) -> None:
-        """Check if all required models are loaded.."""
+        """Check if all required models are loaded."""
         required_models = [
             "preprocessing",
             "data_type_detector",
@@ -191,7 +191,7 @@ class TritonNLPClient:
         return json.loads(result)
 
     def _prepare_string_input(self, name: str, values: list[str]):
-        """Prepare string input tensor.."""
+        """Prepare string input tensor."""
         values_bytes = [v.encode("utf-8") for v in values]
         values_np = np.array(values_bytes, dtype=np.object_)
         values_np = values_np.reshape((len(values), 1))
@@ -205,7 +205,7 @@ class TritonNLPClient:
         return input_tensor
 
     def _prepare_outputs(self, names: list[str]):
-        """Prepare output tensors.."""
+        """Prepare output tensors."""
         outputs = []
         for name in names:
             if self.protocol == "grpc":
@@ -215,13 +215,13 @@ class TritonNLPClient:
         return outputs
 
     def _parse_string_output(self, response, name: str) -> list[str]:
-        """Parse string output from response.."""
+        """Parse string output from response."""
         output = response.as_numpy(name)
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in output.flatten()]
 
 
 def run_tests() -> None:
-    """Run comprehensive tests of all NLP services.."""
+    """Run comprehensive tests of all NLP services."""
     client = TritonNLPClient()
 
     # Test cases
