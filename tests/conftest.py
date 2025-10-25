@@ -15,7 +15,7 @@ sys.path.insert(0, str(project_root / "client"))
 
 
 def pytest_configure(config):
-    """Configure pytest with custom markers.."""
+    """Configure pytest with custom markers."""
 
     config.addinivalue_line("markers", "unit: Unit tests")
     config.addinivalue_line("markers", "integration: Integration tests")
