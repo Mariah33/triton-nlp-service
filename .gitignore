@@ -69,7 +69,6 @@ ipython_config.py
 .idea_modules/
 
 # VSCode
-.vscode/
 *.code-workspace
 .history/
 
