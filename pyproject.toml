@@ -202,11 +202,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/triton-nlp-service"
+Homepage = "https://github.com/mariah33/triton-nlp-service"
 Documentation = "https://triton-nlp-service.readthedocs.io"
-Repository = "https://github.com/yourusername/triton-nlp-service"
-Issues = "https://github.com/yourusername/triton-nlp-service/issues"
-Changelog = "https://github.com/yourusername/triton-nlp-service/blob/main/CHANGELOG.md"
+Repository = "https://github.com/mariah33/triton-nlp-service"
+Issues = "https://github.com/mariah33/triton-nlp-service/issues"
+Changelog = "https://github.com/mariah33/triton-nlp-service/blob/main/CHANGELOG.md"
 
 [project.scripts]
 triton-nlp = "src.cli:main"
@@ -374,6 +374,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "D104"]
+# PLC0415: Model imports must be inside fixtures after patching sys.modules and sys.path
 "tests/*.py" = ["S101", "D103", "ANN001", "ANN201", "PLR2004", "SLF001", "INP001", "PT006", "PLC0415"]
 "tests/**/*.py" = ["S101", "D103", "ANN001", "ANN201", "PLR2004", "SLF001", "INP001", "PT006", "PLC0415"]
 "scripts/*.py" = ["D103", "ANN201", "T20"]

@@ -4,6 +4,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -16,8 +17,6 @@ class TestLanguageDetector:
     def model(self):
         """Create language detector model instance."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
-            import sys
-
             sys.path.insert(0, "model_repository/language_detector/1")
             from model import TritonPythonModel
 

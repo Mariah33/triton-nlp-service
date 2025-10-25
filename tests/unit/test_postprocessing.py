@@ -4,6 +4,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -16,8 +17,6 @@ class TestPostprocessing:
     def model(self):
         """Create postprocessing model instance."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
-            import sys
-
             sys.path.insert(0, "model_repository/postprocessing/1")
             from model import TritonPythonModel
 

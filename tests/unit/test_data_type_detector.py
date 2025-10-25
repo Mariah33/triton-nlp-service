@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
+import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -26,8 +27,6 @@ class TestDataTypeDetectorML:
     def mock_model(self, model_config):
         """Create a mock model instance.."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
-            import sys
-
             # Import after patching
             sys.path.insert(0, "model_repository/data_type_detector_ml/1")
             from model import TritonPythonModel
