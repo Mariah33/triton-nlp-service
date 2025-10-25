@@ -14,19 +14,19 @@ Client Request
 Triton Ensemble Pipeline
     ↓
 ┌──────────────────────────────────────┐
-│  Preprocessing (text normalization)   │
+│  Preprocessing (text normalization)  │
 └──────────────────────────────────────┘
     ↓
 ┌──────────────────────────────────────┐
-│  Parallel Model Execution:            │
-│  - Transliteration Model              │
-│  - Translation Model                  │
-│  - NER Model                          │
-│  - Data Type Detection Model          │
+│  Parallel Model Execution:           │
+│  - Transliteration Model             │
+│  - Translation Model                 │
+│  - NER Model                         │
+│  - Data Type Detection Model         │
 └──────────────────────────────────────┘
     ↓
 ┌──────────────────────────────────────┐
-│  Postprocessing (result aggregation)  │
+│  Postprocessing (result aggregation) │
 └──────────────────────────────────────┘
     ↓
 Response
