@@ -55,6 +55,18 @@ ensemble_scheduling {
       }
     },
     {
+      model_name: "language_detector"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "text"
+      }
+      output_map {
+        key: "language_info"
+        value: "language_detection_result"
+      }
+    },
+    {
       model_name: "data_type_detector"
       model_version: -1
       input_map {
@@ -76,6 +88,22 @@ ensemble_scheduling {
       output_map {
         key: "entities"
         value: "ner_result"
+      }
+    },
+    {
+      model_name: "ner_multilingual"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "processed_text"
+      }
+      input_map {
+        key: "language_code"
+        value: "source_language"
+      }
+      output_map {
+        key: "entities"
+        value: "ner_multilingual_result"
       }
     },
     {
@@ -138,8 +166,16 @@ ensemble_scheduling {
         value: "data_type_result"
       }
       input_map {
+        key: "language_detection_result"
+        value: "language_detection_result"
+      }
+      input_map {
         key: "ner_result"
         value: "ner_result"
+      }
+      input_map {
+        key: "ner_multilingual_result"
+        value: "ner_multilingual_result"
       }
       input_map {
         key: "transliteration_result"

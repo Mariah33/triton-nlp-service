@@ -1,0 +1,37 @@
+name: "ner_multilingual"
+backend: "python"
+max_batch_size: 16
+
+input [
+  {
+    name: "text"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "language_code"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    optional: true
+  }
+]
+
+output [
+  {
+    name: "entities"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_CPU
+  }
+]
+
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/env.tar.gz"}
+}
