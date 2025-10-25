@@ -18,7 +18,7 @@ maintainers = [
 keywords = [
     "nlp",
     "triton",
-    "machine-learning", 
+    "machine-learning",
     "data-detection",
     "translation",
     "ner",
@@ -46,12 +46,12 @@ dependencies = [
     "sentence-transformers>=2.2.2",
     "onnx>=1.14.0",
     "onnxruntime>=1.15.0",
-    
+
     # NLP Core
     "spacy>=3.5.0",
     "nltk>=3.8",
     "langdetect>=1.0.9",
-    
+
     # Data Type Detection
     "presidio-analyzer>=2.2.33",
     "presidio-anonymizer>=2.2.33",
@@ -61,33 +61,33 @@ dependencies = [
     "validators>=0.20.0",
     "pycountry>=22.3.5",
     "scrubadub>=2.0.0",
-    
+
     # Transliteration
     "indic-nlp-library>=0.91",
     "ai4bharat-transliteration>=1.1.0",
     "polyglot>=16.7.4",
     "PyICU>=2.11",
-    
+
     # Translation
     "sentencepiece>=0.1.99",
     "sacremoses>=0.0.53",
-    
+
     # Triton Client
     "tritonclient[all]>=2.34.0",
     "grpcio>=1.54.0",
     "protobuf>=3.20.3",
-    
+
     # Web Framework
     "fastapi>=0.100.0",
     "uvicorn[standard]>=0.23.0",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
-    
+
     # Data Processing
     "numpy>=1.21.0",
     "pandas>=2.0.0",
     "scikit-learn>=1.3.0",
-    
+
     # Utilities
     "python-dateutil>=2.8.2",
     "pyyaml>=6.0",
@@ -111,7 +111,7 @@ dev = [
     "bandit[toml]>=1.7.5",
     "safety>=2.3.5",
     "pre-commit>=3.3.3",
-    
+
     # Testing
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -124,33 +124,33 @@ dev = [
     "pytest-env>=1.0.0",
     "hypothesis>=6.82.0",
     "factory-boy>=3.3.0",
-    
+
     # Type Stubs
     "types-requests>=2.31.0",
     "types-pyyaml>=6.0.12",
     "types-python-dateutil>=2.8.19",
     "types-tqdm>=4.66.0",
-    
+
     # API Testing
     "httpx>=0.24.1",
     "requests-mock>=1.11.0",
     "responses>=0.23.3",
     "aioresponses>=0.7.4",
-    
+
     # Development Tools
     "ipython>=8.14.0",
     "ipdb>=0.13.13",
     "jupyter>=1.0.0",
     "notebook>=7.0.0",
     "jupyterlab>=4.0.0",
-    
+
     # Profiling
     "memory-profiler>=0.61.0",
     "py-spy>=0.3.14",
     "scalene>=1.5.31",
     "line-profiler>=4.1.0",
     "pympler>=1.0.1",
-    
+
     # Testing Utilities
     "freezegun>=1.2.2",
     "time-machine>=2.12.0",
@@ -227,6 +227,40 @@ include-package-data = true
 # Ruff - Linting and Formatting
 # ----------------------------------------------------------------------------
 [tool.ruff]
+# Python version target
+target-version = "py310"
+
+# Line length
+line-length = 100
+
+# File/folder exclusions
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "*.pyc",
+    "*.pyi",
+]
+
+[tool.ruff.lint]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
     "E",      # pycodestyle errors
@@ -289,8 +323,6 @@ ignore = [
     "D104",    # Missing docstring in public package
     "D107",    # Missing docstring in __init__
     "D401",    # First line should be in imperative mood
-    "ANN101",  # Missing type annotation for self
-    "ANN102",  # Missing type annotation for cls
     "ANN401",  # Dynamically typed expressions (typing.Any)
     "S101",    # Use of assert (needed for tests)
     "BLE001",  # Do not catch blind exception
@@ -300,39 +332,6 @@ ignore = [
     "PLR0913", # Too many arguments to function call
     "PLR2004", # Magic value used in comparison
 ]
-
-# File/folder exclusions
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "*.pyc",
-    "*.pyi",
-]
-
-# Python version target
-target-version = "py310"
-
-# Line length to match Black
-line-length = 100
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -384,7 +383,7 @@ max-returns = 6
 max-statements = 50
 
 [tool.ruff.lint.pycodestyle]
-max-doc-length = 100
+max-doc-length = 150
 ignore-overlong-task-comments = true
 
 # ----------------------------------------------------------------------------
@@ -534,7 +533,7 @@ suggestion-mode = true
 [tool.pylint.messages_control]
 disable = [
     "C0103",  # Invalid name
-    "C0114",  # Missing module docstring  
+    "C0114",  # Missing module docstring
     "C0115",  # Missing class docstring
     "C0116",  # Missing function docstring
     "R0903",  # Too few public methods

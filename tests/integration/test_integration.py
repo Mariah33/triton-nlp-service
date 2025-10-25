@@ -4,10 +4,10 @@ import json
 import time
 from typing import Dict, List
 
+from fastapi.testclient import TestClient
 import numpy as np
 import pytest
 import requests
-from fastapi.testclient import TestClient
 
 # Import with proper error handling
 try:
@@ -76,9 +76,7 @@ class TestTritonIntegration:
         outputs = [grpcclient.InferRequestedOutput("result")]
 
         # Run inference
-        response = triton_client.infer(
-            model_name="ensemble_nlp", inputs=inputs, outputs=outputs
-        )
+        response = triton_client.infer(model_name="ensemble_nlp", inputs=inputs, outputs=outputs)
 
         # Parse result
         result_bytes = response.as_numpy("result")
@@ -326,9 +324,7 @@ class TestEndToEndScenarios:
 
         for _ in range(iterations):
             start = time.time()
-            response = requests.post(
-                f"{api_client}/detect_type", json={"text": text}, timeout=10
-            )
+            response = requests.post(f"{api_client}/detect_type", json={"text": text}, timeout=10)
             end = time.time()
 
             assert response.status_code == 200

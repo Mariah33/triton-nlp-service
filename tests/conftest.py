@@ -2,8 +2,8 @@
 
 import json
 import os
-import sys
 from pathlib import Path
+import sys
 
 import pytest
 
@@ -26,21 +26,15 @@ def pytest_configure(config):
 
 def pytest_addoption(parser):
     """Add custom command line options."""
-    parser.addoption(
-        "--run-slow", action="store_true", default=False, help="Run slow tests"
-    )
+    parser.addoption("--run-slow", action="store_true", default=False, help="Run slow tests")
     parser.addoption(
         "--run-integration",
         action="store_true",
         default=False,
         help="Run integration tests",
     )
-    parser.addoption(
-        "--run-gpu", action="store_true", default=False, help="Run GPU tests"
-    )
-    parser.addoption(
-        "--benchmark", action="store_true", default=False, help="Run benchmarks"
-    )
+    parser.addoption("--run-gpu", action="store_true", default=False, help="Run GPU tests")
+    parser.addoption("--benchmark", action="store_true", default=False, help="Run benchmarks")
 
 
 def pytest_collection_modifyitems(config, items):
