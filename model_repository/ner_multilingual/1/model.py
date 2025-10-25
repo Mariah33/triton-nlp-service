@@ -10,12 +10,12 @@ from typing import Any
 import numpy as np
 import spacy
 import torch
-import triton_python_backend_utils as pb_utils
 from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
+import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Multilingual NER model using transformers and spaCy."""
+    """Multilingual NER model using transformers and spaCy.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -115,7 +115,8 @@ class TritonPythonModel:
         return responses
 
     def _extract_entities(self, text: str, language_code: str = "en") -> list[dict[str, Any]]:
-        """Extract entities using the best available model for the language."""
+        """Extract entities using the best available model for the language.."""
+
         entities = []
 
         # Try transformer-based multilingual NER first (works for all languages)
@@ -144,7 +145,8 @@ class TritonPythonModel:
         return entities
 
     def _extract_with_transformer(self, text: str) -> list[dict[str, Any]]:
-        """Extract entities using transformer model (multilingual)."""
+        """Extract entities using transformer model (multilingual).."""
+
         if not self.ner_pipeline:
             return []
 
@@ -170,7 +172,8 @@ class TritonPythonModel:
         return entities
 
     def _extract_with_spacy(self, text: str, language_code: str) -> list[dict[str, Any]]:
-        """Extract entities using language-specific spaCy model."""
+        """Extract entities using language-specific spaCy model.."""
+
         # Lazy load the spaCy model
         if language_code not in self.spacy_models:
             model_name = self.supported_spacy_languages[language_code]
@@ -203,7 +206,8 @@ class TritonPythonModel:
         return entities
 
     def _merge_entities(self, entities1: list[dict[str, Any]], entities2: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Merge two lists of entities, removing duplicates and keeping higher confidence ones."""
+        """Merge two lists of entities, removing duplicates and keeping higher confidence ones.."""
+
         # Create a map of positions to entities
         merged = []
         seen_positions = set()
@@ -220,7 +224,8 @@ class TritonPythonModel:
         return merged
 
     def _resolve_overlaps(self, entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Remove overlapping entities, keeping the one with higher confidence."""
+        """Remove overlapping entities, keeping the one with higher confidence.."""
+
         if not entities:
             return entities
 
@@ -242,7 +247,8 @@ class TritonPythonModel:
         return resolved
 
     def finalize(self):
-        """Clean up resources."""
+        """Clean up resources.."""
+
         # Unload spaCy models
         for model in self.spacy_models.values():
             del model

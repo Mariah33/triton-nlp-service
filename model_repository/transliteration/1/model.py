@@ -6,7 +6,6 @@ Converts text from one script to another (e.g., Devanagari to Latin)
 import json
 from typing import Dict, List
 
-
 from indicnlp.transliterate.unicode_transliterate import UnicodeIndicTransliterator
 import numpy as np
 import torch
@@ -14,7 +13,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Transliteration model for script conversion"""
+    """Transliteration model for script conversion.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -278,16 +277,8 @@ class TritonPythonModel:
             target_lang_tensor = pb_utils.get_input_tensor_by_name(request, "target_script")
 
             texts = text_tensor.as_numpy().tolist()
-            source_scripts = (
-                source_lang_tensor.as_numpy().tolist()
-                if source_lang_tensor
-                else ["auto"] * len(texts)
-            )
-            target_scripts = (
-                target_lang_tensor.as_numpy().tolist()
-                if target_lang_tensor
-                else ["latin"] * len(texts)
-            )
+            source_scripts = source_lang_tensor.as_numpy().tolist() if source_lang_tensor else ["auto"] * len(texts)
+            target_scripts = target_lang_tensor.as_numpy().tolist() if target_lang_tensor else ["latin"] * len(texts)
 
             transliterated_results = []
 
@@ -307,9 +298,7 @@ class TritonPythonModel:
                 transliterated_results.append(json.dumps(result))
 
             # Create output tensor
-            out_tensor = pb_utils.Tensor(
-                "transliterated_text", np.array(transliterated_results, dtype=np.object_)
-            )
+            out_tensor = pb_utils.Tensor("transliterated_text", np.array(transliterated_results, dtype=np.object_))
 
             # Create response
             inference_response = pb_utils.InferenceResponse(output_tensors=[out_tensor])
@@ -318,7 +307,7 @@ class TritonPythonModel:
         return responses
 
     def _transliterate(self, text: str, source_script: str, target_script: str) -> Dict:
-        """Perform transliteration"""
+        """Perform transliteration.."""
 
         # Auto-detect source script if not specified
         if source_script == "auto":
@@ -332,17 +321,13 @@ class TritonPythonModel:
 
         # Apply transliteration based on the script pair
         if source_script == "devanagari" and target_script == "latin":
-            transliterated = self._apply_mapping(
-                text, self.transliteration_maps["devanagari_to_latin"]
-            )
+            transliterated = self._apply_mapping(text, self.transliteration_maps["devanagari_to_latin"])
             confidence = 0.85
         elif source_script == "arabic" and target_script == "latin":
             transliterated = self._apply_mapping(text, self.transliteration_maps["arabic_to_latin"])
             confidence = 0.80
         elif source_script == "cyrillic" and target_script == "latin":
-            transliterated = self._apply_mapping(
-                text, self.transliteration_maps["cyrillic_to_latin"]
-            )
+            transliterated = self._apply_mapping(text, self.transliteration_maps["cyrillic_to_latin"])
             confidence = 0.90
         elif source_script == "greek" and target_script == "latin":
             transliterated = self._apply_mapping(text, self.transliteration_maps["greek_to_latin"])
@@ -364,7 +349,8 @@ class TritonPythonModel:
         }
 
     def _detect_script(self, text: str) -> str:
-        """Detect the script of the text"""
+        """Detect the script of the text.."""
+
         scripts_count = {
             "latin": 0,
             "devanagari": 0,
@@ -393,12 +379,11 @@ class TritonPythonModel:
                 scripts_count["japanese"] += 1
 
         # Return the script with the most characters
-        return (
-            max(scripts_count, key=scripts_count.get) if any(scripts_count.values()) else "unknown"
-        )
+        return max(scripts_count, key=scripts_count.get) if any(scripts_count.values()) else "unknown"
 
     def _apply_mapping(self, text: str, mapping: Dict[str, str]) -> str:
-        """Apply character mapping for transliteration"""
+        """Apply character mapping for transliteration.."""
+
         result = []
         i = 0
         while i < len(text):

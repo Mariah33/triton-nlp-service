@@ -1,5 +1,5 @@
-"""
-Postprocessing Model
+"""Postprocessing Model.
+
 Aggregates results from all NLP models and formats the final response
 """
 
@@ -11,7 +11,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Postprocessing model to aggregate and format results"""
+    """Postprocessing model to aggregate and format results.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -28,9 +28,7 @@ class TritonPythonModel:
             ner_result = self._get_string_tensor(request, "ner_result")
             transliteration_result = self._get_string_tensor(request, "transliteration_result")
             translation_result = self._get_string_tensor(request, "translation_result")
-            requested_services = self._get_string_tensor(
-                request, "requested_services", optional=True
-            )
+            requested_services = self._get_string_tensor(request, "requested_services", optional=True)
 
             final_results = []
 
@@ -41,12 +39,8 @@ class TritonPythonModel:
                 metadata_dict = json.loads(metadata[i]) if metadata[i] else {}
                 data_type_dict = json.loads(data_type_result[i]) if data_type_result[i] else {}
                 ner_dict = json.loads(ner_result[i]) if ner_result[i] else {}
-                transliteration_dict = (
-                    json.loads(transliteration_result[i]) if transliteration_result[i] else {}
-                )
-                translation_dict = (
-                    json.loads(translation_result[i]) if translation_result[i] else {}
-                )
+                transliteration_dict = json.loads(transliteration_result[i]) if transliteration_result[i] else {}
+                translation_dict = json.loads(translation_result[i]) if translation_result[i] else {}
 
                 # Parse requested services
                 services = []
@@ -69,22 +63,16 @@ class TritonPythonModel:
 
                 # Add requested service results
                 if "data_type" in services:
-                    result["results"]["data_type_detection"] = self._format_data_type_result(
-                        data_type_dict
-                    )
+                    result["results"]["data_type_detection"] = self._format_data_type_result(data_type_dict)
 
                 if "ner" in services:
                     result["results"]["named_entities"] = self._format_ner_result(ner_dict)
 
                 if "transliteration" in services:
-                    result["results"]["transliteration"] = self._format_transliteration_result(
-                        transliteration_dict
-                    )
+                    result["results"]["transliteration"] = self._format_transliteration_result(transliteration_dict)
 
                 if "translation" in services:
-                    result["results"]["translation"] = self._format_translation_result(
-                        translation_dict
-                    )
+                    result["results"]["translation"] = self._format_translation_result(translation_dict)
 
                 # Add summary
                 result["summary"] = self._generate_summary(result)
@@ -101,7 +89,8 @@ class TritonPythonModel:
         return responses
 
     def _get_string_tensor(self, request, name: str, optional: bool = False) -> List[str]:
-        """Helper to get string tensor values"""
+        """Helper to get string tensor values.."""
+
         tensor = pb_utils.get_input_tensor_by_name(request, name)
         if tensor is None:
             if optional:
@@ -113,7 +102,8 @@ class TritonPythonModel:
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in values]
 
     def _format_data_type_result(self, data_type_dict: Dict) -> Dict:
-        """Format data type detection results"""
+        """Format data type detection results.."""
+
         if not data_type_dict:
             return {"detected": False, "type": "unknown"}
 
@@ -131,16 +121,15 @@ class TritonPythonModel:
                     "subtype": detection.get("subtype", None),
                     "category": detection.get("category"),
                     "confidence": detection.get("confidence"),
-                    "value": detection.get("value", "")[:50] + "..."
-                    if len(detection.get("value", "")) > 50
-                    else detection.get("value", ""),
+                    "value": detection.get("value", "")[:50] + "..." if len(detection.get("value", "")) > 50 else detection.get("value", ""),
                 }
             )
 
         return formatted
 
     def _format_ner_result(self, ner_dict: Dict) -> Dict:
-        """Format NER results"""
+        """Format NER results.."""
+
         if not ner_dict:
             return {"entities": [], "count": 0}
 
@@ -170,7 +159,8 @@ class TritonPythonModel:
         return formatted
 
     def _format_transliteration_result(self, transliteration_dict: Dict) -> Dict:
-        """Format transliteration results"""
+        """Format transliteration results.."""
+
         if not transliteration_dict:
             return {"success": False}
 
@@ -185,7 +175,8 @@ class TritonPythonModel:
         }
 
     def _format_translation_result(self, translation_dict: Dict) -> Dict:
-        """Format translation results"""
+        """Format translation results.."""
+
         if not translation_dict:
             return {"success": False}
 
@@ -201,7 +192,8 @@ class TritonPythonModel:
         }
 
     def _generate_summary(self, result: Dict) -> Dict:
-        """Generate a summary of all results"""
+        """Generate a summary of all results.."""
+
         summary = {
             "text_length": len(result["original_text"]),
             "services_applied": list(result["results"].keys()),
@@ -212,33 +204,25 @@ class TritonPythonModel:
         if "data_type_detection" in result["results"]:
             dt_result = result["results"]["data_type_detection"]
             if dt_result["detected"]:
-                summary["key_findings"].append(
-                    f"Detected as {dt_result['primary_type']} with {dt_result['confidence']:.2f} confidence"
-                )
+                summary["key_findings"].append(f"Detected as {dt_result['primary_type']} with {dt_result['confidence']:.2f} confidence")
 
         # Summarize NER
         if "named_entities" in result["results"]:
             ner_result = result["results"]["named_entities"]
             if ner_result["count"] > 0:
-                summary["key_findings"].append(
-                    f"Found {ner_result['count']} named entities of types: {', '.join(ner_result['types_found'])}"
-                )
+                summary["key_findings"].append(f"Found {ner_result['count']} named entities of types: {', '.join(ner_result['types_found'])}")
 
         # Summarize transliteration
         if "transliteration" in result["results"]:
             trans_result = result["results"]["transliteration"]
             if trans_result["success"]:
-                summary["key_findings"].append(
-                    f"Transliterated from {trans_result['source_script']} to {trans_result['target_script']}"
-                )
+                summary["key_findings"].append(f"Transliterated from {trans_result['source_script']} to {trans_result['target_script']}")
 
         # Summarize translation
         if "translation" in result["results"]:
             trans_result = result["results"]["translation"]
             if trans_result["success"]:
-                summary["key_findings"].append(
-                    f"Translated from {trans_result['source_language']} to {trans_result['target_language']}"
-                )
+                summary["key_findings"].append(f"Translated from {trans_result['source_language']} to {trans_result['target_language']}")
 
         return summary
 

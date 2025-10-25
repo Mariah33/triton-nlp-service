@@ -1,5 +1,5 @@
-"""
-Triton Client for NLP Service
+"""Triton Client for NLP Service.
+
 Tests all functionality: transliteration, translation, NER, and data type detection
 """
 
@@ -14,7 +14,7 @@ import tritonclient.http as httpclient
 
 class TritonNLPClient:
     def __init__(self, url: str = "localhost:8001", protocol: str = "grpc"):
-        """Initialize Triton client
+        """Initialize Triton client.
 
         Args:
             url: Triton server URL
@@ -36,7 +36,8 @@ class TritonNLPClient:
         self.check_models()
 
     def check_models(self):
-        """Check if all required models are loaded"""
+        """Check if all required models are loaded.."""
+
         required_models = [
             "preprocessing",
             "data_type_detector",
@@ -60,7 +61,7 @@ class TritonNLPClient:
         source_language: str = "auto",
         target_language: str = "en",
     ) -> Dict:
-        """Process text through the ensemble NLP pipeline
+        """Process text through the ensemble NLP pipeline.
 
         Args:
             text: Input text to process
@@ -101,7 +102,7 @@ class TritonNLPClient:
         return json.loads(result)
 
     def detect_data_type(self, text: str) -> Dict:
-        """Detect data type of text
+        """Detect data type of text.
 
         Args:
             text: Input text
@@ -114,16 +115,14 @@ class TritonNLPClient:
         outputs = self._prepare_outputs(["detection_result"])
 
         # Run inference
-        response = self.client.infer(
-            model_name="data_type_detector", inputs=inputs, outputs=outputs
-        )
+        response = self.client.infer(model_name="data_type_detector", inputs=inputs, outputs=outputs)
 
         # Parse response
         result = self._parse_string_output(response, "detection_result")[0]
         return json.loads(result)
 
     def extract_entities(self, text: str) -> Dict:
-        """Extract named entities from text
+        """Extract named entities from text.
 
         Args:
             text: Input text
@@ -142,10 +141,8 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "entities")[0]
         return json.loads(result)
 
-    def transliterate(
-        self, text: str, source_script: str = "auto", target_script: str = "latin"
-    ) -> Dict:
-        """Transliterate text between scripts
+    def transliterate(self, text: str, source_script: str = "auto", target_script: str = "latin") -> Dict:
+        """Transliterate text between scripts.
 
         Args:
             text: Input text
@@ -170,10 +167,8 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "transliterated_text")[0]
         return json.loads(result)
 
-    def translate(
-        self, text: str, source_language: str = "auto", target_language: str = "en"
-    ) -> Dict:
-        """Translate text between languages
+    def translate(self, text: str, source_language: str = "auto", target_language: str = "en") -> Dict:
+        """Translate text between languages.
 
         Args:
             text: Input text
@@ -199,7 +194,8 @@ class TritonNLPClient:
         return json.loads(result)
 
     def _prepare_string_input(self, name: str, values: List[str]):
-        """Prepare string input tensor"""
+        """Prepare string input tensor.."""
+
         values_bytes = [v.encode("utf-8") for v in values]
         values_np = np.array(values_bytes, dtype=np.object_)
         values_np = values_np.reshape((len(values), 1))
@@ -213,7 +209,8 @@ class TritonNLPClient:
         return input_tensor
 
     def _prepare_outputs(self, names: List[str]):
-        """Prepare output tensors"""
+        """Prepare output tensors.."""
+
         outputs = []
         for name in names:
             if self.protocol == "grpc":
@@ -223,13 +220,15 @@ class TritonNLPClient:
         return outputs
 
     def _parse_string_output(self, response, name: str) -> List[str]:
-        """Parse string output from response"""
+        """Parse string output from response.."""
+
         output = response.as_numpy(name)
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in output.flatten()]
 
 
 def run_tests():
-    """Run comprehensive tests of all NLP services"""
+    """Run comprehensive tests of all NLP services.."""
+
     client = TritonNLPClient()
 
     print("\n" + "=" * 60)
@@ -292,20 +291,14 @@ def run_tests():
             if not all(ord(c) < 128 for c in test["text"] if c.isalpha()):
                 print("\n3. Transliteration:")
                 trans_result = client.transliterate(test["text"])
-                print(
-                    f"   Script: {trans_result.get('source_script')} → {trans_result.get('target_script')}"
-                )
+                print(f"   Script: {trans_result.get('source_script')} → {trans_result.get('target_script')}")
                 print(f"   Result: {trans_result.get('transliterated', 'N/A')}")
 
             # 4. Translation (if specified)
             if "target_language" in test:
                 print("\n4. Translation:")
-                translate_result = client.translate(
-                    test["text"], source_language="auto", target_language=test["target_language"]
-                )
-                print(
-                    f"   Languages: {translate_result.get('source_language')} → {translate_result.get('target_language')}"
-                )
+                translate_result = client.translate(test["text"], source_language="auto", target_language=test["target_language"])
+                print(f"   Languages: {translate_result.get('source_language')} → {translate_result.get('target_language')}")
                 print(f"   Result: {translate_result.get('translated', 'N/A')}")
 
             # 5. Test ensemble with all services
@@ -315,9 +308,7 @@ def run_tests():
                 services=["data_type", "ner", "transliteration", "translation"],
                 target_language=test.get("target_language", "en"),
             )
-            print(
-                f"   Summary: {len(ensemble_result.get('summary', {}).get('key_findings', []))} key findings"
-            )
+            print(f"   Summary: {len(ensemble_result.get('summary', {}).get('key_findings', []))} key findings")
             for finding in ensemble_result.get("summary", {}).get("key_findings", []):
                 print(f"   - {finding}")
 
@@ -334,9 +325,7 @@ def run_tests():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton NLP Service Client")
     parser.add_argument("--server", default="localhost:8001", help="Triton server URL")
-    parser.add_argument(
-        "--protocol", default="grpc", choices=["grpc", "http"], help="Protocol to use"
-    )
+    parser.add_argument("--protocol", default="grpc", choices=["grpc", "http"], help="Protocol to use")
     parser.add_argument("--test", action="store_true", help="Run test suite")
     parser.add_argument("--text", type=str, help="Text to process")
     parser.add_argument(

@@ -1,5 +1,5 @@
-"""
-Data Type Detection Model
+"""Data Type Detection Model.
+
 Detects various data types like phone numbers, passports, emails, etc.
 """
 
@@ -14,7 +14,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Data type detection model using regex patterns and validation"""
+    """Data type detection model using regex patterns and validation.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -144,9 +144,7 @@ class TritonPythonModel:
                 detection_results.append(json.dumps(result))
 
             # Create output tensor
-            out_tensor = pb_utils.Tensor(
-                "detection_result", np.array(detection_results, dtype=np.object_)
-            )
+            out_tensor = pb_utils.Tensor("detection_result", np.array(detection_results, dtype=np.object_))
 
             # Create response
             inference_response = pb_utils.InferenceResponse(output_tensors=[out_tensor])
@@ -155,7 +153,8 @@ class TritonPythonModel:
         return responses
 
     def _detect_data_types(self, text: str) -> Dict[str, Any]:
-        """Detect various data types in the text"""
+        """Detect various data types in the text.."""
+
         text = text.strip()
         detections = []
 
@@ -244,7 +243,8 @@ class TritonPythonModel:
         }
 
     def _detect_phone_number(self, text: str) -> Dict[str, Any]:
-        """Detect and validate phone numbers"""
+        """Detect and validate phone numbers.."""
+
         try:
             # Try to parse with country code
             if text.startswith("+"):
@@ -258,9 +258,7 @@ class TritonPythonModel:
                             return {
                                 "type": "phone_number",
                                 "country": country,
-                                "international": phonenumbers.format_number(
-                                    parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
-                                ),
+                                "international": phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL),
                                 "confidence": 0.95,
                                 "value": text,
                                 "category": "contact",
@@ -271,9 +269,7 @@ class TritonPythonModel:
             if phonenumbers.is_valid_number(parsed):
                 return {
                     "type": "phone_number",
-                    "international": phonenumbers.format_number(
-                        parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
-                    ),
+                    "international": phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL),
                     "confidence": 0.95,
                     "value": text,
                     "category": "contact",
@@ -293,7 +289,8 @@ class TritonPythonModel:
         return None
 
     def _is_valid_credit_card(self, number: str) -> bool:
-        """Validate credit card using Luhn algorithm"""
+        """Validate credit card using Luhn algorithm.."""
+
         number = re.sub(r"\D", "", number)
         if len(number) < 13 or len(number) > 19:
             return False
@@ -316,14 +313,16 @@ class TritonPythonModel:
         return luhn_checksum(number) == 0
 
     def _mask_credit_card(self, number: str) -> str:
-        """Mask credit card number for security"""
+        """Mask credit card number for security.."""
+
         clean_number = re.sub(r"\D", "", number)
         if len(clean_number) >= 12:
             return f"****-****-****-{clean_number[-4:]}"
         return number
 
     def _detect_iban(self, text: str) -> Dict[str, Any]:
-        """Detect IBAN (International Bank Account Number)"""
+        """Detect IBAN (International Bank Account Number).."""
+
         iban_pattern = r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$"
         clean_text = text.replace(" ", "").upper()
 
@@ -338,7 +337,8 @@ class TritonPythonModel:
         return None
 
     def _classify_general_text(self, text: str) -> Dict[str, Any]:
-        """Classify general text when no specific pattern matches"""
+        """Classify general text when no specific pattern matches.."""
+
         # Simple heuristics for general classification
         if text.replace(".", "").replace(",", "").replace("-", "").isdigit():
             return {"type": "number", "confidence": 0.9, "value": text, "category": "numeric"}

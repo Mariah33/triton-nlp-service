@@ -1,6 +1,4 @@
-"""
-Preprocessing model for text normalization
-"""
+"""Preprocessing model for text normalization."""
 
 import json
 import re
@@ -11,10 +9,11 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Preprocessing model for text normalization and preparation"""
+    """Preprocessing model for text normalization and preparation.."""
 
     def initialize(self, args):
-        """`initialize` is called only once when the model is being loaded."""
+        """`initialize` is called only once when the model is being loaded.."""
+
         self.model_config = model_config = json.loads(args["model_config"])
 
         # Get output configurations
@@ -26,7 +25,8 @@ class TritonPythonModel:
         self.output1_dtype = pb_utils.triton_string_to_numpy(output1_config["data_type"])
 
     def execute(self, requests):
-        """`execute` must be implemented in every Python model. `execute`
+        """`execute` must be implemented in every Python model. `execute`.
+
         function receives a list of pb_utils.InferenceRequest as the only
         argument.
         """
@@ -54,24 +54,19 @@ class TritonPythonModel:
                 metadata_list.append(json.dumps(metadata))
 
             # Create output tensors
-            out_tensor_0 = pb_utils.Tensor(
-                "preprocessed_text", np.array(preprocessed_texts, dtype=self.output0_dtype)
-            )
+            out_tensor_0 = pb_utils.Tensor("preprocessed_text", np.array(preprocessed_texts, dtype=self.output0_dtype))
 
-            out_tensor_1 = pb_utils.Tensor(
-                "text_metadata", np.array(metadata_list, dtype=self.output1_dtype)
-            )
+            out_tensor_1 = pb_utils.Tensor("text_metadata", np.array(metadata_list, dtype=self.output1_dtype))
 
             # Create response
-            inference_response = pb_utils.InferenceResponse(
-                output_tensors=[out_tensor_0, out_tensor_1]
-            )
+            inference_response = pb_utils.InferenceResponse(output_tensors=[out_tensor_0, out_tensor_1])
             responses.append(inference_response)
 
         return responses
 
     def _normalize_text(self, text: str) -> str:
-        """Normalize text for processing"""
+        """Normalize text for processing.."""
+
         # Remove excessive whitespace
         text = " ".join(text.split())
 
@@ -85,7 +80,8 @@ class TritonPythonModel:
         return text.strip()
 
     def _extract_metadata(self, text: str) -> Dict[str, Any]:
-        """Extract basic metadata from text"""
+        """Extract basic metadata from text.."""
+
         return {
             "original_length": len(text),
             "word_count": len(text.split()),
@@ -95,7 +91,8 @@ class TritonPythonModel:
         }
 
     def _detect_scripts(self, text: str) -> List[str]:
-        """Detect writing scripts in text"""
+        """Detect writing scripts in text.."""
+
         scripts = []
 
         # Check for various scripts
@@ -115,5 +112,6 @@ class TritonPythonModel:
         return scripts if scripts else ["unknown"]
 
     def finalize(self):
-        """`finalize` is called only once when the model is being unloaded."""
+        """`finalize` is called only once when the model is being unloaded.."""
+
         pass

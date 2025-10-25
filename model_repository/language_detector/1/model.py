@@ -17,7 +17,7 @@ DetectorFactory.seed = 0
 
 
 class TritonPythonModel:
-    """Language detection model using langdetect."""
+    """Language detection model using langdetect.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -111,7 +111,8 @@ class TritonPythonModel:
         return responses
 
     def _detect_language(self, text: str) -> dict[str, Any]:
-        """Detect language of text with confidence scores"""
+        """Detect language of text with confidence scores.."""
+
         # Handle empty or very short text
         if not text or len(text.strip()) < 3:
             return {
@@ -130,7 +131,9 @@ class TritonPythonModel:
             lang_probs = detect_langs(text)
 
             # Convert to list of dicts
-            all_probabilities = [{"language_code": lp.lang, "language_name": self.language_names.get(lp.lang, lp.lang), "probability": lp.prob} for lp in lang_probs]
+            all_probabilities = [
+                {"language_code": lp.lang, "language_name": self.language_names.get(lp.lang, lp.lang), "probability": lp.prob} for lp in lang_probs
+            ]
 
             # Get the highest probability
             confidence = lang_probs[0].prob if lang_probs else 0.0

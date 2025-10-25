@@ -1,4 +1,4 @@
-"""Integration tests for Triton NLP Service."""
+"""Integration tests for Triton NLP Service.."""
 
 import json
 import time
@@ -24,11 +24,12 @@ except ImportError:
 @pytest.mark.integration
 @pytest.mark.skipif(not TRITON_AVAILABLE, reason="Triton client not installed")
 class TestTritonIntegration:
-    """Integration tests for Triton server."""
+    """Integration tests for Triton server.."""
 
     @pytest.fixture
     def triton_client(self):
-        """Create Triton client for testing."""
+        """Create Triton client for testing.."""
+
         client = grpcclient.InferenceServerClient(url="localhost:8001")
         # Wait for server to be ready
         max_retries = 10
@@ -41,12 +42,14 @@ class TestTritonIntegration:
         return client
 
     def test_server_health(self, triton_client):
-        """Test Triton server health."""
+        """Test Triton server health.."""
+
         assert triton_client.is_server_live()
         assert triton_client.is_server_ready()
 
     def test_model_availability(self, triton_client):
-        """Test all models are loaded."""
+        """Test all models are loaded.."""
+
         expected_models = [
             "preprocessing",
             "data_type_detector",
@@ -62,7 +65,8 @@ class TestTritonIntegration:
             assert triton_client.is_model_ready(model), f"Model {model} not ready"
 
     def test_ensemble_pipeline(self, triton_client):
-        """Test complete ensemble pipeline."""
+        """Test complete ensemble pipeline.."""
+
         # Prepare input
         text = "Contact John Smith at john.smith@example.com or +1-555-123-4567"
         text_bytes = text.encode("utf-8")
@@ -99,7 +103,8 @@ class TestTritonIntegration:
         ],
     )
     def test_individual_models(self, triton_client, model, input_name, output_name):
-        """Test individual model inference."""
+        """Test individual model inference.."""
+
         text = "Test input text"
         text_bytes = text.encode("utf-8")
         input_array = np.array([[text_bytes]], dtype=np.object_)
@@ -145,11 +150,12 @@ class TestTritonIntegration:
 
 @pytest.mark.integration
 class TestFastAPIIntegration:
-    """Integration tests for FastAPI wrapper."""
+    """Integration tests for FastAPI wrapper.."""
 
     @pytest.fixture
     def client(self):
-        """Create FastAPI test client."""
+        """Create FastAPI test client.."""
+
         try:
             from client.fastapi_server import app
 
@@ -158,20 +164,23 @@ class TestFastAPIIntegration:
             pytest.skip("FastAPI server not available")
 
     def test_root_endpoint(self, client):
-        """Test root endpoint."""
+        """Test root endpoint.."""
+
         response = client.get("/")
         assert response.status_code == 200
         data = response.json()
         assert data["service"] == "Triton NLP Service"
 
     def test_health_endpoint(self, client):
-        """Test health check endpoint."""
+        """Test health check endpoint.."""
+
         response = client.get("/health")
         # May fail if Triton not running, that's ok for unit test
         assert response.status_code in [200, 503]
 
     def test_process_endpoint(self, client):
-        """Test main processing endpoint."""
+        """Test main processing endpoint.."""
+
         payload = {
             "text": "Contact john@example.com",
             "services": ["data_type", "ner"],
@@ -188,7 +197,8 @@ class TestFastAPIIntegration:
             assert "summary" in data
 
     def test_batch_processing(self, client):
-        """Test batch processing endpoint."""
+        """Test batch processing endpoint.."""
+
         payload = {
             "texts": ["Text 1", "Text 2", "Text 3"],
             "services": ["data_type"],
@@ -204,7 +214,8 @@ class TestFastAPIIntegration:
             assert len(data["results"]) == 3
 
     def test_data_type_detection_endpoint(self, client):
-        """Test data type detection endpoint."""
+        """Test data type detection endpoint.."""
+
         payload = {"text": "john.doe@example.com"}
 
         response = client.post("/detect_type", json=payload)
@@ -215,7 +226,8 @@ class TestFastAPIIntegration:
             assert "confidence" in data
 
     def test_transliteration_endpoint(self, client):
-        """Test transliteration endpoint."""
+        """Test transliteration endpoint.."""
+
         payload = {"text": "नमस्ते", "source_script": "devanagari", "target_script": "latin"}
 
         response = client.post("/transliterate", json=payload)
@@ -225,7 +237,8 @@ class TestFastAPIIntegration:
             assert "transliterated" in data
 
     def test_translation_endpoint(self, client):
-        """Test translation endpoint."""
+        """Test translation endpoint.."""
+
         payload = {"text": "Hello world", "source_language": "en", "target_language": "es"}
 
         response = client.post("/translate", json=payload)
@@ -235,7 +248,8 @@ class TestFastAPIIntegration:
             assert "translated" in data
 
     def test_entity_extraction_endpoint(self, client):
-        """Test entity extraction endpoint."""
+        """Test entity extraction endpoint.."""
+
         payload = {"text": "John Smith works at Microsoft in Seattle."}
 
         response = client.post("/extract_entities", json=payload)
@@ -247,11 +261,12 @@ class TestFastAPIIntegration:
 
 @pytest.mark.integration
 class TestEndToEndScenarios:
-    """End-to-end scenario tests."""
+    """End-to-end scenario tests.."""
 
     @pytest.fixture
     def api_client(self):
-        """Create API client for E2E tests."""
+        """Create API client for E2E tests.."""
+
         base_url = "http://localhost:8080"
         # Check if service is running
         try:
@@ -264,7 +279,8 @@ class TestEndToEndScenarios:
         return base_url
 
     def test_pii_detection_scenario(self, api_client):
-        """Test PII detection scenario."""
+        """Test PII detection scenario.."""
+
         test_text = """
         Please contact John Smith at john.smith@company.com or 
         call him at +1-555-123-4567. His SSN is 123-45-6789 and 
@@ -292,7 +308,8 @@ class TestEndToEndScenarios:
             assert any("credit" in t.lower() for t in detected_types)
 
     def test_multilingual_scenario(self, api_client):
-        """Test multilingual processing scenario."""
+        """Test multilingual processing scenario.."""
+
         test_cases = [
             {"text": "Hello world", "target_lang": "es", "expected": "hola"},
             {"text": "नमस्ते", "expected_script": "latin"},
@@ -315,7 +332,8 @@ class TestEndToEndScenarios:
             assert "results" in data
 
     def test_performance_benchmark(self, api_client):
-        """Benchmark API performance."""
+        """Benchmark API performance.."""
+
         import time
 
         text = "Simple test text for benchmarking"

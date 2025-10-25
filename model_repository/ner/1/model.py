@@ -1,5 +1,5 @@
-"""
-Named Entity Recognition Model
+"""Named Entity Recognition Model.
+
 Identifies entities like persons, organizations, locations, dates, etc.
 """
 
@@ -13,7 +13,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """NER model for entity extraction"""
+    """NER model for entity extraction.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -229,15 +229,13 @@ class TritonPythonModel:
         return responses
 
     def _extract_entities(self, text: str) -> List[Dict[str, Any]]:
-        """Extract named entities from text"""
+        """Extract named entities from text.."""
+
         entities = []
 
         # Extract pattern-based entities first
         for entity_type in ["DATE", "TIME", "MONEY", "PERCENT", "EMAIL", "URL", "PHONE"]:
-            if (
-                entity_type in self.entity_patterns
-                and "patterns" in self.entity_patterns[entity_type]
-            ):
+            if entity_type in self.entity_patterns and "patterns" in self.entity_patterns[entity_type]:
                 for pattern in self.entity_patterns[entity_type]["patterns"]:
                     matches = re.finditer(pattern, text, re.IGNORECASE)
                     for match in matches:
@@ -269,7 +267,8 @@ class TritonPythonModel:
         return entities
 
     def _extract_persons(self, text: str) -> List[Dict[str, Any]]:
-        """Extract person names"""
+        """Extract person names.."""
+
         entities = []
         words = text.split()
 
@@ -309,14 +308,11 @@ class TritonPythonModel:
 
             # Check if any word is a known first or last name
             is_likely_name = any(
-                word in self.entity_patterns["PERSON"]["common_first_names"]
-                or word in self.entity_patterns["PERSON"]["common_last_names"]
+                word in self.entity_patterns["PERSON"]["common_first_names"] or word in self.entity_patterns["PERSON"]["common_last_names"]
                 for word in words_in_name
             )
 
-            if (
-                is_likely_name or len(words_in_name) == 2
-            ):  # Two capitalized words often indicate names
+            if is_likely_name or len(words_in_name) == 2:  # Two capitalized words often indicate names
                 entities.append(
                     {
                         "text": potential_name,
@@ -330,7 +326,8 @@ class TritonPythonModel:
         return entities
 
     def _extract_organizations(self, text: str) -> List[Dict[str, Any]]:
-        """Extract organization names"""
+        """Extract organization names.."""
+
         entities = []
 
         # Look for known organizations
@@ -366,14 +363,12 @@ class TritonPythonModel:
         return entities
 
     def _extract_locations(self, text: str) -> List[Dict[str, Any]]:
-        """Extract location names"""
+        """Extract location names.."""
+
         entities = []
 
         # Look for known locations
-        all_locations = (
-            self.entity_patterns["LOCATION"]["countries"]
-            + self.entity_patterns["LOCATION"]["cities"]
-        )
+        all_locations = self.entity_patterns["LOCATION"]["countries"] + self.entity_patterns["LOCATION"]["cities"]
 
         for location in all_locations:
             pattern = r"\b" + re.escape(location) + r"\b"
@@ -408,7 +403,8 @@ class TritonPythonModel:
         return entities
 
     def _resolve_overlaps(self, entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Remove overlapping entities, keeping the one with higher confidence"""
+        """Remove overlapping entities, keeping the one with higher confidence.."""
+
         if not entities:
             return entities
 
@@ -420,10 +416,7 @@ class TritonPythonModel:
             # Check if this entity overlaps with any already resolved entity
             overlaps = False
             for resolved_entity in resolved:
-                if (
-                    entity["start"] < resolved_entity["end"]
-                    and entity["end"] > resolved_entity["start"]
-                ):
+                if entity["start"] < resolved_entity["end"] and entity["end"] > resolved_entity["start"]:
                     overlaps = True
                     break
 

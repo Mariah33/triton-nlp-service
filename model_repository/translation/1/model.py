@@ -1,5 +1,5 @@
-"""
-Translation Model using Hugging Face Transformers
+"""Translation Model using Hugging Face Transformers.
+
 Supports multiple language pairs
 """
 
@@ -18,7 +18,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """Translation model supporting multiple language pairs"""
+    """Translation model supporting multiple language pairs.."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])
@@ -116,16 +116,8 @@ class TritonPythonModel:
             target_lang_tensor = pb_utils.get_input_tensor_by_name(request, "target_language")
 
             texts = text_tensor.as_numpy().tolist()
-            source_langs = (
-                source_lang_tensor.as_numpy().tolist()
-                if source_lang_tensor
-                else ["auto"] * len(texts)
-            )
-            target_langs = (
-                target_lang_tensor.as_numpy().tolist()
-                if target_lang_tensor
-                else ["en"] * len(texts)
-            )
+            source_langs = source_lang_tensor.as_numpy().tolist() if source_lang_tensor else ["auto"] * len(texts)
+            target_langs = target_lang_tensor.as_numpy().tolist() if target_lang_tensor else ["en"] * len(texts)
 
             translation_results = []
 
@@ -145,9 +137,7 @@ class TritonPythonModel:
                 translation_results.append(json.dumps(result))
 
             # Create output tensor
-            out_tensor = pb_utils.Tensor(
-                "translated_text", np.array(translation_results, dtype=np.object_)
-            )
+            out_tensor = pb_utils.Tensor("translated_text", np.array(translation_results, dtype=np.object_))
 
             # Create response
             inference_response = pb_utils.InferenceResponse(output_tensors=[out_tensor])
@@ -156,7 +146,7 @@ class TritonPythonModel:
         return responses
 
     def _translate(self, text: str, source_lang: str, target_lang: str) -> Dict:
-        """Perform translation"""
+        """Perform translation.."""
 
         # Auto-detect source language if not specified
         if source_lang == "auto":
@@ -197,9 +187,7 @@ class TritonPythonModel:
             reverse_pair = f"{target_lang}-{source_lang}"
             if reverse_pair in self.language_pairs:
                 # Could use back-translation technique
-                translated = (
-                    f"[No direct translation available from {source_lang} to {target_lang}]"
-                )
+                translated = f"[No direct translation available from {source_lang} to {target_lang}]"
                 confidence = 0.3
                 method = "unsupported_pair"
 
@@ -214,7 +202,8 @@ class TritonPythonModel:
         }
 
     def _detect_language(self, text: str) -> str:
-        """Detect the language of the text"""
+        """Detect the language of the text.."""
+
         # Simple heuristic-based detection for demonstration
         # In production, use langdetect or fasttext
 
@@ -234,10 +223,7 @@ class TritonPythonModel:
             for char in "的一是不了在有我他这个们中来上大为和国地到以说时要就出会可也你对生能而子那得于着下自之年过发后作里用道行所然家种事成方多经么去法学如都同现当没动面起看定天分还进好小部其些主样理心她本前开但因只从想实日军者意无力它与长把机十民第公此已工使情明性知全三又关点正业外将两高间由问很最重并物手应战向头文体政美相见被利什二等产或新己制身果加西斯月话合回特代内信表化老给世位次度门任常先海通教儿原东声提立及比员解水名真论处走义各入几口认条平系气题活尔更别打女变四神总何电数安少报才结反受目太量再感建务做接必场件计管期市直德资命山金指克许统区保至队形社便空决治展马科司五基眼书非则听白却界达光放强即像难且权思王象完设式色路记南品住告类求据程北边死张该交规万取拉格望觉术领共确传师观清今切院让识候带导争运笑飞风步改收根干造言联持组每济车亲极林服快办议往元英士复整流数"
         ):
             return "zh"
-        elif any(
-            char in text
-            for char in "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"
-        ):
+        elif any(char in text for char in "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"):
             return "ja"
         elif any(char in text for char in "اأإآبتثجحخدذرزسشصضطظعغفقكلمنهوي"):
             return "ar"
@@ -247,7 +233,8 @@ class TritonPythonModel:
         return "en"  # Default to English
 
     def _simple_translate(self, text: str, lang_pair: str) -> str:
-        """Simple dictionary-based translation for demonstration"""
+        """Simple dictionary-based translation for demonstration.."""
+
         if lang_pair not in self.simple_translations:
             return text
 
@@ -271,7 +258,8 @@ class TritonPythonModel:
         return " ".join(translated_words)
 
     def _get_alternatives(self, text: str, lang_pair: str) -> List[str]:
-        """Get alternative translations"""
+        """Get alternative translations.."""
+
         # In production, this would return multiple translation candidates
         alternatives = []
 
@@ -283,7 +271,8 @@ class TritonPythonModel:
         return alternatives[:3]  # Return top 3 alternatives
 
     def finalize(self):
-        """Clean up resources"""
+        """Clean up resources.."""
+
         # Unload models if loaded
         for model in self.models.values():
             del model
