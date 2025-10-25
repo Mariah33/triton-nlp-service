@@ -15,16 +15,15 @@ class TestTranslation:
     @pytest.fixture
     def model(self):
         """Create translation model instance."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils):
-            with patch("sys.modules.torch", MagicMock()):
-                import sys
+        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils), patch("sys.modules.torch", MagicMock()):
+            import sys
 
-                sys.path.insert(0, "model_repository/translation/1")
-                from model import TritonPythonModel
+            sys.path.insert(0, "model_repository/translation/1")
+            from model import TritonPythonModel
 
-                model = TritonPythonModel()
-                model.initialize({"model_config": json.dumps({"name": "translation"})})
-                return model
+            model = TritonPythonModel()
+            model.initialize({"model_config": json.dumps({"name": "translation"})})
+            return model
 
     @pytest.mark.unit
     @pytest.mark.parametrize(

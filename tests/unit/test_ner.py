@@ -254,7 +254,7 @@ class TestNER:
         entities = model._extract_entities(text)
 
         # Should find multiple entity types
-        entity_types = set(e["type"] for e in entities)
+        entity_types = {e["type"] for e in entities}
 
         # Expecting at least these types
         expected_types = {"PERSON", "ORGANIZATION", "LOCATION", "DATE", "TIME", "EMAIL", "PHONE"}
@@ -349,7 +349,7 @@ class TestNER:
         entities = model._extract_entities(text)
 
         # Count entities at each unique position
-        positions = [(e["start"], e["end"]) for e in entities]
+        [(e["start"], e["end"]) for e in entities]
 
         # Check first Apple occurrence
         apple_entities_at_start = [e for e in entities if "Apple" in e["text"] and e["start"] == 0]
@@ -359,20 +359,13 @@ class TestNER:
     def test_long_text_performance(self, model):
         """Test that extraction works on longer texts."""
         # Create a longer text with multiple entities
-        text = " ".join(
-            [
-                "Dr. John Smith from Microsoft attended a conference in New York on January 15, 2024.",
-                "He presented research on AI at 2:00 PM.",
-                "Contact him at john.smith@microsoft.com or call (555) 123-4567.",
-                "The event cost $500 per attendee and had a 95% satisfaction rate.",
-            ]
-        )
+        text = "Dr. John Smith from Microsoft attended a conference in New York on January 15, 2024. He presented research on AI at 2:00 PM. Contact him at john.smith@microsoft.com or call (555) 123-4567. The event cost $500 per attendee and had a 95% satisfaction rate."
 
         entities = model._extract_entities(text)
 
         # Should find multiple entities
         assert len(entities) >= 8
-        entity_types = set(e["type"] for e in entities)
+        entity_types = {e["type"] for e in entities}
         assert len(entity_types) >= 5
 
     @pytest.mark.unit
@@ -385,7 +378,7 @@ class TestNER:
         assert len(entities) >= 2
 
         # Check specific entities
-        entity_types = set(e["type"] for e in entities)
+        entity_types = {e["type"] for e in entities}
         assert "EMAIL" in entity_types or "MONEY" in entity_types
 
     @pytest.mark.unit
@@ -395,7 +388,7 @@ class TestNER:
         entities = model._extract_entities(text)
 
         # Should extract money and location
-        entity_types = set(e["type"] for e in entities)
+        entity_types = {e["type"] for e in entities}
         assert "MONEY" in entity_types
         assert "LOCATION" in entity_types
 

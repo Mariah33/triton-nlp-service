@@ -279,11 +279,8 @@ class TritonPythonModel:
 
             transliterated_results = []
 
-            for text_bytes, source, target in zip(texts, source_scripts, target_scripts):
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+            for text_bytes, source, target in zip(texts, source_scripts, target_scripts, strict=False):
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 if isinstance(source, bytes):
                     source = source.decode("utf-8")
@@ -303,15 +300,13 @@ class TritonPythonModel:
 
         return responses
 
-    def _transliterate(self, text: str, source_script: str, target_script: str) -> Dict:
+    def _transliterate(self, text: str, source_script: str, target_script: str) -> dict:
         """Perform transliteration.."""
-
         # Auto-detect source script if not specified
         if source_script == "auto":
             source_script = self._detect_script(text)
 
         # Select appropriate transliteration map
-        map_key = f"{source_script}_to_{target_script}"
 
         transliterated = text
         confidence = 0.0
@@ -347,7 +342,6 @@ class TritonPythonModel:
 
     def _detect_script(self, text: str) -> str:
         """Detect the script of the text.."""
-
         scripts_count = {
             "latin": 0,
             "devanagari": 0,
@@ -380,7 +374,6 @@ class TritonPythonModel:
 
     def _apply_mapping(self, text: str, mapping: dict[str, str]) -> str:
         """Apply character mapping for transliteration.."""
-
         result = []
         i = 0
         while i < len(text):

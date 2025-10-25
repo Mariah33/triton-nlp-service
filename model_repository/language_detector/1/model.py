@@ -92,10 +92,7 @@ class TritonPythonModel:
             detection_results = []
 
             for text_bytes in texts:
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 # Detect language
                 result = self._detect_language(text)
@@ -112,7 +109,6 @@ class TritonPythonModel:
 
     def _detect_language(self, text: str) -> dict[str, Any]:
         """Detect language of text with confidence scores.."""
-
         # Handle empty or very short text
         if not text or len(text.strip()) < 3:
             return {

@@ -7,7 +7,6 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import json
 import logging
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
@@ -36,19 +35,19 @@ triton_client = None
 
 class TextRequest(BaseModel):
     text: str = Field(..., description="Input text to process")
-    services: Optional[list[str]] = Field(
+    services: list[str] | None = Field(
         default=None,
         description="List of services to apply: data_type, ner, transliteration, translation",
     )
-    source_language: Optional[str] = Field(default="auto", description="Source language code")
-    target_language: Optional[str] = Field(default="en", description="Target language code")
+    source_language: str | None = Field(default="auto", description="Source language code")
+    target_language: str | None = Field(default="en", description="Target language code")
 
 
 class BatchTextRequest(BaseModel):
     texts: list[str] = Field(..., description="List of texts to process")
-    services: Optional[list[str]] = Field(default=None)
-    source_language: Optional[str] = Field(default="auto")
-    target_language: Optional[str] = Field(default="en")
+    services: list[str] | None = Field(default=None)
+    source_language: str | None = Field(default="auto")
+    target_language: str | None = Field(default="en")
 
 
 class DataTypeRequest(BaseModel):
@@ -57,14 +56,14 @@ class DataTypeRequest(BaseModel):
 
 class TransliterationRequest(BaseModel):
     text: str = Field(..., description="Text to transliterate")
-    source_script: Optional[str] = Field(default="auto", description="Source script")
-    target_script: Optional[str] = Field(default="latin", description="Target script")
+    source_script: str | None = Field(default="auto", description="Source script")
+    target_script: str | None = Field(default="latin", description="Target script")
 
 
 class TranslationRequest(BaseModel):
     text: str = Field(..., description="Text to translate")
-    source_language: Optional[str] = Field(default="auto", description="Source language")
-    target_language: Optional[str] = Field(default="en", description="Target language")
+    source_language: str | None = Field(default="auto", description="Source language")
+    target_language: str | None = Field(default="en", description="Target language")
 
 
 class NERRequest(BaseModel):
@@ -72,24 +71,23 @@ class NERRequest(BaseModel):
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Initialize Triton client on startup.."""
-
     global triton_client
     try:
         triton_client = grpcclient.InferenceServerClient(url="localhost:8001")
         if not triton_client.is_server_live():
-            raise ConnectionError("Triton server is not live")
+            msg = "Triton server is not live"
+            raise ConnectionError(msg)
         logger.info("Connected to Triton server")
     except Exception as e:
-        logger.error(f"Failed to connect to Triton server: {e}")
+        logger.exception(f"Failed to connect to Triton server: {e}")
         raise
 
 
 @app.get("/")
 async def root():
     """Root endpoint with API information.."""
-
     return {
         "service": "Triton NLP Service",
         "version": "1.0.0",
@@ -109,17 +107,14 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint.."""
-
     if triton_client and triton_client.is_server_live():
         return {"status": "healthy", "triton": "connected"}
-    else:
-        raise HTTPException(status_code=503, detail="Triton server not available")
+    raise HTTPException(status_code=503, detail="Triton server not available")
 
 
 @app.get("/models")
 async def list_models():
     """List available models and their status.."""
-
     models = [
         "preprocessing",
         "data_type_detector",
@@ -144,7 +139,6 @@ async def list_models():
 @app.post("/process")
 async def process_text(request: TextRequest):
     """Process text through the NLP pipeline.."""
-
     try:
         result = await run_in_executor(
             process_with_triton,
@@ -155,14 +149,13 @@ async def process_text(request: TextRequest):
         )
         return JSONResponse(content=result)
     except Exception as e:
-        logger.error(f"Error processing text: {e}")
+        logger.exception(f"Error processing text: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/batch_process")
 async def batch_process_text(request: BatchTextRequest):
     """Process multiple texts in batch.."""
-
     try:
         tasks = []
         for text in request.texts:
@@ -178,68 +171,62 @@ async def batch_process_text(request: BatchTextRequest):
         results = await asyncio.gather(*tasks)
         return JSONResponse(content={"results": results})
     except Exception as e:
-        logger.error(f"Error in batch processing: {e}")
+        logger.exception(f"Error in batch processing: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/detect_type")
 async def detect_data_type(request: DataTypeRequest):
     """Detect data type of text.."""
-
     try:
         result = await run_in_executor(detect_type_with_triton, request.text)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.error(f"Error detecting data type: {e}")
+        logger.exception(f"Error detecting data type: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/transliterate")
 async def transliterate_text(request: TransliterationRequest):
     """Transliterate text between scripts.."""
-
     try:
         result = await run_in_executor(transliterate_with_triton, request.text, request.source_script, request.target_script)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.error(f"Error transliterating text: {e}")
+        logger.exception(f"Error transliterating text: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/translate")
 async def translate_text(request: TranslationRequest):
     """Translate text between languages.."""
-
     try:
         result = await run_in_executor(translate_with_triton, request.text, request.source_language, request.target_language)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.error(f"Error translating text: {e}")
+        logger.exception(f"Error translating text: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/extract_entities")
 async def extract_entities(request: NERRequest):
     """Extract named entities from text.."""
-
     try:
         result = await run_in_executor(extract_entities_with_triton, request.text)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.error(f"Error extracting entities: {e}")
+        logger.exception(f"Error extracting entities: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 async def run_in_executor(func, *args):
     """Run blocking function in executor.."""
-
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(executor, func, *args)
 
 
-def process_with_triton(text: str, services: list[str], source_lang: str, target_lang: str) -> Dict:
+def process_with_triton(text: str, services: list[str], source_lang: str, target_lang: str) -> dict:
     """Process text using Triton ensemble model.."""
-
     # Prepare inputs
     text_input = prepare_string_input("text", [text])
     inputs = [text_input]
@@ -268,9 +255,8 @@ def process_with_triton(text: str, services: list[str], source_lang: str, target
     return json.loads(result)
 
 
-def detect_type_with_triton(text: str) -> Dict:
+def detect_type_with_triton(text: str) -> dict:
     """Detect data type using Triton.."""
-
     inputs = [prepare_string_input("text", [text])]
     outputs = [grpcclient.InferRequestedOutput("detection_result")]
 
@@ -280,9 +266,8 @@ def detect_type_with_triton(text: str) -> Dict:
     return json.loads(result)
 
 
-def transliterate_with_triton(text: str, source_script: str, target_script: str) -> Dict:
+def transliterate_with_triton(text: str, source_script: str, target_script: str) -> dict:
     """Transliterate text using Triton.."""
-
     inputs = [
         prepare_string_input("text", [text]),
         prepare_string_input("source_script", [source_script]),
@@ -296,9 +281,8 @@ def transliterate_with_triton(text: str, source_script: str, target_script: str)
     return json.loads(result)
 
 
-def translate_with_triton(text: str, source_lang: str, target_lang: str) -> Dict:
+def translate_with_triton(text: str, source_lang: str, target_lang: str) -> dict:
     """Translate text using Triton.."""
-
     inputs = [
         prepare_string_input("text", [text]),
         prepare_string_input("source_language", [source_lang]),
@@ -312,9 +296,8 @@ def translate_with_triton(text: str, source_lang: str, target_lang: str) -> Dict
     return json.loads(result)
 
 
-def extract_entities_with_triton(text: str) -> Dict:
+def extract_entities_with_triton(text: str) -> dict:
     """Extract entities using Triton.."""
-
     inputs = [prepare_string_input("text", [text])]
     outputs = [grpcclient.InferRequestedOutput("entities")]
 
@@ -326,7 +309,6 @@ def extract_entities_with_triton(text: str) -> Dict:
 
 def prepare_string_input(name: str, values: list[str]):
     """Prepare string input tensor for Triton.."""
-
     values_bytes = [v.encode("utf-8") for v in values]
     values_np = np.array(values_bytes, dtype=np.object_)
     values_np = values_np.reshape((len(values), 1))
@@ -338,7 +320,6 @@ def prepare_string_input(name: str, values: list[str]):
 
 def parse_string_output(response, name: str) -> list[str]:
     """Parse string output from Triton response.."""
-
     output = response.as_numpy(name)
     return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in output.flatten()]
 

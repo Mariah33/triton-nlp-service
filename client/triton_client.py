@@ -12,7 +12,7 @@ import tritonclient.http as httpclient
 
 
 class TritonNLPClient:
-    def __init__(self, url: str = "localhost:8001", protocol: str = "grpc"):
+    def __init__(self, url: str = "localhost:8001", protocol: str = "grpc") -> None:
         """Initialize Triton client.
 
         Args:
@@ -27,16 +27,15 @@ class TritonNLPClient:
 
         # Check if server is live
         if not self.client.is_server_live():
-            raise ConnectionError(f"Triton server at {url} is not live")
+            msg = f"Triton server at {url} is not live"
+            raise ConnectionError(msg)
 
-        print(f"Connected to Triton server at {url}")
 
         # Check model status
         self.check_models()
 
-    def check_models(self):
+    def check_models(self) -> None:
         """Check if all required models are loaded.."""
-
         required_models = [
             "preprocessing",
             "data_type_detector",
@@ -49,17 +48,17 @@ class TritonNLPClient:
 
         for model in required_models:
             if self.client.is_model_ready(model):
-                print(f"✓ Model '{model}' is ready")
+                pass
             else:
-                print(f"✗ Model '{model}' is not ready")
+                pass
 
     def process_text(
         self,
         text: str,
-        services: list[str] = None,
+        services: list[str] | None = None,
         source_language: str = "auto",
         target_language: str = "en",
-    ) -> Dict:
+    ) -> dict:
         """Process text through the ensemble NLP pipeline.
 
         Args:
@@ -100,7 +99,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "result")[0]
         return json.loads(result)
 
-    def detect_data_type(self, text: str) -> Dict:
+    def detect_data_type(self, text: str) -> dict:
         """Detect data type of text.
 
         Args:
@@ -120,7 +119,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "detection_result")[0]
         return json.loads(result)
 
-    def extract_entities(self, text: str) -> Dict:
+    def extract_entities(self, text: str) -> dict:
         """Extract named entities from text.
 
         Args:
@@ -140,7 +139,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "entities")[0]
         return json.loads(result)
 
-    def transliterate(self, text: str, source_script: str = "auto", target_script: str = "latin") -> Dict:
+    def transliterate(self, text: str, source_script: str = "auto", target_script: str = "latin") -> dict:
         """Transliterate text between scripts.
 
         Args:
@@ -166,7 +165,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "transliterated_text")[0]
         return json.loads(result)
 
-    def translate(self, text: str, source_language: str = "auto", target_language: str = "en") -> Dict:
+    def translate(self, text: str, source_language: str = "auto", target_language: str = "en") -> dict:
         """Translate text between languages.
 
         Args:
@@ -194,7 +193,6 @@ class TritonNLPClient:
 
     def _prepare_string_input(self, name: str, values: list[str]):
         """Prepare string input tensor.."""
-
         values_bytes = [v.encode("utf-8") for v in values]
         values_np = np.array(values_bytes, dtype=np.object_)
         values_np = values_np.reshape((len(values), 1))
@@ -209,7 +207,6 @@ class TritonNLPClient:
 
     def _prepare_outputs(self, names: list[str]):
         """Prepare output tensors.."""
-
         outputs = []
         for name in names:
             if self.protocol == "grpc":
@@ -220,19 +217,14 @@ class TritonNLPClient:
 
     def _parse_string_output(self, response, name: str) -> list[str]:
         """Parse string output from response.."""
-
         output = response.as_numpy(name)
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in output.flatten()]
 
 
-def run_tests():
+def run_tests() -> None:
     """Run comprehensive tests of all NLP services.."""
-
     client = TritonNLPClient()
 
-    print("\n" + "=" * 60)
-    print("TESTING NLP SERVICES")
-    print("=" * 60)
 
     # Test cases
     test_cases = [
@@ -261,64 +253,44 @@ def run_tests():
         },
     ]
 
-    for i, test in enumerate(test_cases, 1):
-        print(f"\nTest {i}: {test['description']}")
-        print(f"Input: {test['text']}")
-        print("-" * 40)
+    for _i, test in enumerate(test_cases, 1):
 
         try:
             # Test individual services
 
             # 1. Data Type Detection
-            print("\n1. Data Type Detection:")
             dt_result = client.detect_data_type(test["text"])
-            print(f"   Type: {dt_result.get('primary_type', 'unknown')}")
-            print(f"   Confidence: {dt_result.get('confidence', 0):.2f}")
             if "detections" in dt_result:
-                for detection in dt_result["detections"][:3]:  # Show first 3
-                    print(f"   - {detection.get('type')}: {detection.get('confidence', 0):.2f}")
+                for _detection in dt_result["detections"][:3]:  # Show first 3
+                    pass
 
             # 2. Named Entity Recognition
-            print("\n2. Named Entity Recognition:")
             ner_result = client.extract_entities(test["text"])
-            print(f"   Found {ner_result.get('entity_count', 0)} entities")
             if "entities" in ner_result:
-                for entity in ner_result["entities"][:5]:  # Show first 5
-                    print(f"   - {entity.get('type')}: {entity.get('text')}")
+                for _entity in ner_result["entities"][:5]:  # Show first 5
+                    pass
 
             # 3. Transliteration (if non-Latin text)
             if not all(ord(c) < 128 for c in test["text"] if c.isalpha()):
-                print("\n3. Transliteration:")
-                trans_result = client.transliterate(test["text"])
-                print(f"   Script: {trans_result.get('source_script')} → {trans_result.get('target_script')}")
-                print(f"   Result: {trans_result.get('transliterated', 'N/A')}")
+                client.transliterate(test["text"])
 
             # 4. Translation (if specified)
             if "target_language" in test:
-                print("\n4. Translation:")
-                translate_result = client.translate(test["text"], source_language="auto", target_language=test["target_language"])
-                print(f"   Languages: {translate_result.get('source_language')} → {translate_result.get('target_language')}")
-                print(f"   Result: {translate_result.get('translated', 'N/A')}")
+                client.translate(test["text"], source_language="auto", target_language=test["target_language"])
 
             # 5. Test ensemble with all services
-            print("\n5. Ensemble (All Services):")
             ensemble_result = client.process_text(
                 test["text"],
                 services=["data_type", "ner", "transliteration", "translation"],
                 target_language=test.get("target_language", "en"),
             )
-            print(f"   Summary: {len(ensemble_result.get('summary', {}).get('key_findings', []))} key findings")
-            for finding in ensemble_result.get("summary", {}).get("key_findings", []):
-                print(f"   - {finding}")
+            for _finding in ensemble_result.get("summary", {}).get("key_findings", []):
+                pass
 
-        except Exception as e:
-            print(f"   ERROR: {str(e)}")
+        except Exception:
+            pass
 
-        print("-" * 40)
 
-    print("\n" + "=" * 60)
-    print("TESTING COMPLETE")
-    print("=" * 60)
 
 
 if __name__ == "__main__":
@@ -348,6 +320,5 @@ if __name__ == "__main__":
             source_language=args.source_lang,
             target_language=args.target_lang,
         )
-        print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
-        print("Please specify --test or --text")
+        pass

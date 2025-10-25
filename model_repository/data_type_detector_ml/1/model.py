@@ -24,7 +24,6 @@ class TritonPythonModel:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Initialize transformer models for PII detection
-        print("Loading PII detection models...")
 
         # Microsoft's DeBERTa model for PII detection
         # This model can detect various PII types
@@ -32,9 +31,7 @@ class TritonPythonModel:
             self.pii_tokenizer = AutoTokenizer.from_pretrained("lakshyakh93/deberta_finetuned_pii")
             self.pii_model = AutoModelForSequenceClassification.from_pretrained("lakshyakh93/deberta_finetuned_pii").to(self.device)
             self.pii_model.eval()
-            print("Loaded DeBERTa PII detection model")
         except:
-            print("Could not load DeBERTa PII model, using fallback")
             self.pii_model = None
 
         # Google's Universal Sentence Encoder for similarity-based detection
@@ -44,12 +41,10 @@ class TritonPythonModel:
 
             self.sentence_encoder = SentenceTransformer("all-MiniLM-L6-v2")
             self.sentence_encoder.to(self.device)
-            print("Loaded sentence encoder for similarity matching")
 
             # Pre-compute embeddings for known data type examples
             self._initialize_reference_embeddings()
         except:
-            print("Could not load sentence transformer")
             self.sentence_encoder = None
 
         # Hugging Face pipeline for token classification (NER-style)
@@ -60,9 +55,7 @@ class TritonPythonModel:
                 model="dslim/bert-base-NER",
                 device=0 if torch.cuda.is_available() else -1,
             )
-            print("Loaded BERT NER for entity-based data type detection")
         except:
-            print("Could not load BERT NER model")
             self.token_classifier = None
 
         # Load specialized models for specific data types
@@ -77,9 +70,7 @@ class TritonPythonModel:
                 model="facebook/bart-large-mnli",
                 device=0 if torch.cuda.is_available() else -1,
             )
-            print("Loaded zero-shot classifier for data type detection")
         except:
-            print("Could not load zero-shot classifier")
             self.zero_shot_classifier = None
 
         # Define data type labels for zero-shot classification
@@ -116,9 +107,8 @@ class TritonPythonModel:
             "alphanumeric code",
         ]
 
-    def _initialize_reference_embeddings(self):
+    def _initialize_reference_embeddings(self) -> None:
         """Initialize reference embeddings for similarity-based detection.."""
-
         if not self.sentence_encoder:
             return
 
@@ -156,9 +146,8 @@ class TritonPythonModel:
             embeddings = self.sentence_encoder.encode(examples, convert_to_tensor=True, device=self.device)
             self.reference_embeddings[dtype] = embeddings.mean(dim=0)  # Average embedding
 
-    def _initialize_specialized_models(self):
+    def _initialize_specialized_models(self) -> None:
         """Initialize specialized models for specific data types.."""
-
         # Credit card detection using specialized model
         try:
             from transformers import pipeline
@@ -168,7 +157,6 @@ class TritonPythonModel:
                 model="philomath-1209/credit-card-detection",
                 device=0 if torch.cuda.is_available() else -1,
             )
-            print("Loaded specialized credit card detector")
         except:
             self.credit_card_detector = None
 
@@ -187,9 +175,7 @@ class TritonPythonModel:
 
             # Create analyzer engine
             self.presidio_analyzer = AnalyzerEngine(nlp_engine=provider.create_engine(), supported_languages=["en"])
-            print("Loaded Microsoft Presidio for PII detection")
         except:
-            print("Presidio not available, using alternative methods")
             self.presidio_analyzer = None
 
         # Email validation using specialized model
@@ -197,7 +183,6 @@ class TritonPythonModel:
             from email_validator import validate_email
 
             self.email_validator = validate_email
-            print("Loaded email validator")
         except:
             self.email_validator = None
 
@@ -212,10 +197,7 @@ class TritonPythonModel:
             detection_results = []
 
             for text_bytes in texts:
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 # Detect data types using ML models
                 result = self._detect_data_types_ml(text)
@@ -232,7 +214,6 @@ class TritonPythonModel:
 
     def _detect_data_types_ml(self, text: str) -> dict[str, Any]:
         """Detect data types using ML models.."""
-
         text = text.strip()
         detections = []
 
@@ -252,8 +233,8 @@ class TritonPythonModel:
                             "category": self._get_category(result.entity_type),
                         }
                     )
-            except Exception as e:
-                print(f"Presidio error: {e}")
+            except Exception:
+                pass
 
         # 2. Use zero-shot classification for general data type detection
         if self.zero_shot_classifier and not detections:
@@ -261,7 +242,7 @@ class TritonPythonModel:
                 zs_result = self.zero_shot_classifier(text, candidate_labels=self.data_type_labels, multi_label=False)
 
                 # Get top predictions
-                for label, score in zip(zs_result["labels"][:3], zs_result["scores"][:3]):
+                for label, score in zip(zs_result["labels"][:3], zs_result["scores"][:3], strict=False):
                     if score > 0.5:  # Confidence threshold
                         detections.append(
                             {
@@ -272,8 +253,8 @@ class TritonPythonModel:
                                 "category": self._get_category_from_label(label),
                             }
                         )
-            except Exception as e:
-                print(f"Zero-shot error: {e}")
+            except Exception:
+                pass
 
         # 3. Use DeBERTa PII model if available
         if self.pii_model and self.pii_tokenizer:
@@ -302,8 +283,8 @@ class TritonPythonModel:
                                         "category": "pii",
                                     }
                                 )
-            except Exception as e:
-                print(f"DeBERTa error: {e}")
+            except Exception:
+                pass
 
         # 4. Use similarity matching with sentence embeddings
         if self.sentence_encoder and hasattr(self, "reference_embeddings"):
@@ -330,8 +311,8 @@ class TritonPythonModel:
                             "category": self._get_category(best_match),
                         }
                     )
-            except Exception as e:
-                print(f"Similarity matching error: {e}")
+            except Exception:
+                pass
 
         # 5. Use token classification (NER) for entity-based detection
         if self.token_classifier:
@@ -360,8 +341,8 @@ class TritonPythonModel:
                             "category": "entity",
                         }
                     )
-            except Exception as e:
-                print(f"NER error: {e}")
+            except Exception:
+                pass
 
         # 6. Try phone number detection with phonenumbers library
         try:
@@ -408,7 +389,6 @@ class TritonPythonModel:
 
     def _detect_phone_with_library(self, text: str) -> dict[str, Any]:
         """Detect phone numbers using phonenumbers library.."""
-
         try:
             # Try to parse with country code
             if text.startswith("+"):
@@ -446,7 +426,6 @@ class TritonPythonModel:
 
     def _get_category(self, entity_type: str) -> str:
         """Map entity type to category.."""
-
         categories = {
             "email": "contact",
             "phone": "contact",
@@ -481,12 +460,10 @@ class TritonPythonModel:
 
     def _get_category_from_label(self, label: str) -> str:
         """Get category from zero-shot label.."""
-
         return self._get_category(label)
 
     def _mask_sensitive_data(self, text: str, dtype: str) -> str:
         """Mask sensitive parts of detected data.."""
-
         if dtype == "credit_card":
             # Keep only last 4 digits
             clean = re.sub(r"\D", "", text)
@@ -499,9 +476,8 @@ class TritonPythonModel:
                 return f"***-**-{clean[-4:]}"
         return text
 
-    def _deduplicate_detections(self, detections: list[Dict]) -> list[Dict]:
+    def _deduplicate_detections(self, detections: list[dict]) -> list[dict]:
         """Remove duplicate detections, keeping highest confidence.."""
-
         if not detections:
             return detections
 
@@ -517,7 +493,6 @@ class TritonPythonModel:
 
     def _fallback_pattern_detection(self, text: str) -> dict[str, Any]:
         """Basic pattern matching as fallback.."""
-
         # Simple patterns for common data types
         patterns = {
             "email": r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
@@ -551,7 +526,6 @@ class TritonPythonModel:
 
     def _get_available_models(self) -> list[str]:
         """Return list of available ML models.."""
-
         models = []
         if self.presidio_analyzer:
             models.append("presidio")
@@ -569,7 +543,6 @@ class TritonPythonModel:
 
     def finalize(self):
         """Clean up models.."""
-
         self.pii_model = None
         self.sentence_encoder = None
         self.token_classifier = None

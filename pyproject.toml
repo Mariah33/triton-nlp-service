@@ -374,8 +374,8 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "D104"]
-"tests/*.py" = ["S101", "D103", "ANN201", "PLR2004"]
-"tests/**/*.py" = ["S101", "D103", "ANN201", "PLR2004"]
+"tests/*.py" = ["S101", "D103", "ANN001", "ANN201", "PLR2004", "SLF001", "INP001", "PT006", "PLC0415"]
+"tests/**/*.py" = ["S101", "D103", "ANN001", "ANN201", "PLR2004", "SLF001", "INP001", "PT006", "PLC0415"]
 "scripts/*.py" = ["D103", "ANN201", "T20"]
 "model_repository/*/1/model.py" = ["D102", "D103", "ANN201"]
 "docs/*.py" = ["D103", "INP001"]

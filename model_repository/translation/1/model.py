@@ -114,11 +114,8 @@ class TritonPythonModel:
 
             translation_results = []
 
-            for text_bytes, source, target in zip(texts, source_langs, target_langs):
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+            for text_bytes, source, target in zip(texts, source_langs, target_langs, strict=False):
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 if isinstance(source, bytes):
                     source = source.decode("utf-8")
@@ -138,9 +135,8 @@ class TritonPythonModel:
 
         return responses
 
-    def _translate(self, text: str, source_lang: str, target_lang: str) -> Dict:
+    def _translate(self, text: str, source_lang: str, target_lang: str) -> dict:
         """Perform translation.."""
-
         # Auto-detect source language if not specified
         if source_lang == "auto":
             source_lang = self._detect_language(text)
@@ -196,38 +192,36 @@ class TritonPythonModel:
 
     def _detect_language(self, text: str) -> str:
         """Detect the language of the text.."""
-
         # Simple heuristic-based detection for demonstration
         # In production, use langdetect or fasttext
 
         # Check for common words/patterns
         if any(word in text.lower() for word in ["the", "and", "is", "are", "have"]):
             return "en"
-        elif any(word in text.lower() for word in ["le", "la", "de", "et", "est"]):
+        if any(word in text.lower() for word in ["le", "la", "de", "et", "est"]):
             return "fr"
-        elif any(word in text.lower() for word in ["el", "la", "de", "y", "es"]):
+        if any(word in text.lower() for word in ["el", "la", "de", "y", "es"]):
             return "es"
-        elif any(word in text.lower() for word in ["der", "die", "das", "und", "ist"]):
+        if any(word in text.lower() for word in ["der", "die", "das", "und", "ist"]):
             return "de"
-        elif any(char in text for char in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"):
+        if any(char in text for char in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"):
             return "ru"
-        elif any(
+        if any(
             char in text
             for char in "的一是不了在有我他这个们中来上大为和国地到以说时要就出会可也你对生能而子那得于着下自之年过发后作里用道行所然家种事成方多经么去法学如都同现当没动面起看定天分还进好小部其些主样理心她本前开但因只从想实日军者意无力它与长把机十民第公此已工使情明性知全三又关点正业外将两高间由问很最重并物手应战向头文体政美相见被利什二等产或新己制身果加西斯月话合回特代内信表化老给世位次度门任常先海通教儿原东声提立及比员解水名真论处走义各入几口认条平系气题活尔更别打女变四神总何电数安少报才结反受目太量再感建务做接必场件计管期市直德资命山金指克许统区保至队形社便空决治展马科司五基眼书非则听白却界达光放强即像难且权思王象完设式色路记南品住告类求据程北边死张该交规万取拉格望觉术领共确传师观清今切院让识候带导争运笑飞风步改收根干造言联持组每济车亲极林服快办议往元英士复整流数"
         ):
             return "zh"
-        elif any(char in text for char in "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"):
+        if any(char in text for char in "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"):
             return "ja"
-        elif any(char in text for char in "اأإآبتثجحخدذرزسشصضطظعغفقكلمنهوي"):
+        if any(char in text for char in "اأإآبتثجحخدذرزسشصضطظعغفقكلمنهوي"):
             return "ar"
-        elif any(char in text for char in "अआइईउऊएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह"):
+        if any(char in text for char in "अआइईउऊएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह"):
             return "hi"
 
         return "en"  # Default to English
 
     def _simple_translate(self, text: str, lang_pair: str) -> str:
         """Simple dictionary-based translation for demonstration.."""
-
         if lang_pair not in self.simple_translations:
             return text
 
@@ -252,7 +246,6 @@ class TritonPythonModel:
 
     def _get_alternatives(self, text: str, lang_pair: str) -> list[str]:
         """Get alternative translations.."""
-
         # In production, this would return multiple translation candidates
         alternatives = []
 
@@ -265,7 +258,6 @@ class TritonPythonModel:
 
     def finalize(self):
         """Clean up resources.."""
-
         # Unload models if loaded
         for model in self.models.values():
             del model

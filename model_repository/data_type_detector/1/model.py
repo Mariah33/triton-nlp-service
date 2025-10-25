@@ -133,10 +133,7 @@ class TritonPythonModel:
             detection_results = []
 
             for text_bytes in texts:
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 # Detect data types
                 result = self._detect_data_types(text)
@@ -153,7 +150,6 @@ class TritonPythonModel:
 
     def _detect_data_types(self, text: str) -> dict[str, Any]:
         """Detect various data types in the text.."""
-
         text = text.strip()
         detections = []
 
@@ -189,7 +185,7 @@ class TritonPythonModel:
                 )
 
         # Check driver's license patterns
-        for license_type, config in self.license_patterns.items():
+        for config in self.license_patterns.values():
             if re.match(config["pattern"], text.replace(" ", ""), re.IGNORECASE):
                 detections.append(
                     {
@@ -202,7 +198,7 @@ class TritonPythonModel:
                 )
 
         # Check national ID patterns
-        for id_type, config in self.national_id_patterns.items():
+        for config in self.national_id_patterns.values():
             if re.match(config["pattern"], text.replace(" ", ""), re.IGNORECASE):
                 detections.append(
                     {
@@ -243,7 +239,6 @@ class TritonPythonModel:
 
     def _detect_phone_number(self, text: str) -> dict[str, Any]:
         """Detect and validate phone numbers.."""
-
         try:
             # Try to parse with country code
             if text.startswith("+"):
@@ -289,7 +284,6 @@ class TritonPythonModel:
 
     def _is_valid_credit_card(self, number: str) -> bool:
         """Validate credit card using Luhn algorithm.."""
-
         number = re.sub(r"\D", "", number)
         if len(number) < 13 or len(number) > 19:
             return False
@@ -313,7 +307,6 @@ class TritonPythonModel:
 
     def _mask_credit_card(self, number: str) -> str:
         """Mask credit card number for security.."""
-
         clean_number = re.sub(r"\D", "", number)
         if len(clean_number) >= 12:
             return f"****-****-****-{clean_number[-4:]}"
@@ -321,7 +314,6 @@ class TritonPythonModel:
 
     def _detect_iban(self, text: str) -> dict[str, Any]:
         """Detect IBAN (International Bank Account Number).."""
-
         iban_pattern = r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$"
         clean_text = text.replace(" ", "").upper()
 
@@ -337,7 +329,6 @@ class TritonPythonModel:
 
     def _classify_general_text(self, text: str) -> dict[str, Any]:
         """Classify general text when no specific pattern matches.."""
-
         # Simple heuristics for general classification
         if text.replace(".", "").replace(",", "").replace("-", "").isdigit():
             return {"type": "number", "confidence": 0.9, "value": text, "category": "numeric"}

@@ -13,7 +13,6 @@ class TritonPythonModel:
 
     def initialize(self, args):
         """`initialize` is called only once when the model is being loaded.."""
-
         self.model_config = model_config = json.loads(args["model_config"])
 
         # Get output configurations
@@ -41,10 +40,7 @@ class TritonPythonModel:
             metadata_list = []
 
             for text_bytes in raw_texts:
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 # Normalize text
                 processed_text = self._normalize_text(text)
@@ -66,7 +62,6 @@ class TritonPythonModel:
 
     def _normalize_text(self, text: str) -> str:
         """Normalize text for processing.."""
-
         # Remove excessive whitespace
         text = " ".join(text.split())
 
@@ -81,7 +76,6 @@ class TritonPythonModel:
 
     def _extract_metadata(self, text: str) -> dict[str, Any]:
         """Extract basic metadata from text.."""
-
         return {
             "original_length": len(text),
             "word_count": len(text.split()),
@@ -92,7 +86,6 @@ class TritonPythonModel:
 
     def _detect_scripts(self, text: str) -> list[str]:
         """Detect writing scripts in text.."""
-
         scripts = []
 
         # Check for various scripts
@@ -113,5 +106,3 @@ class TritonPythonModel:
 
     def finalize(self):
         """`finalize` is called only once when the model is being unloaded.."""
-
-        pass

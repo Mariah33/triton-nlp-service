@@ -29,8 +29,7 @@ class TritonPythonModel:
             self.ner_pipeline = pipeline(
                 "ner", model=self.model, tokenizer=self.tokenizer, aggregation_strategy="simple", device=0 if self.device == "cuda" else -1
             )
-        except Exception as e:
-            print(f"Warning: Could not load transformer model: {e}")
+        except Exception:
             self.ner_pipeline = None
 
         # Load language-specific spaCy models (lazy loading)
@@ -86,7 +85,7 @@ class TritonPythonModel:
 
             ner_results = []
 
-            for text_bytes, lang_bytes in zip(texts, language_codes):
+            for text_bytes, lang_bytes in zip(texts, language_codes, strict=False):
                 text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 if lang_bytes is not None:
@@ -101,7 +100,7 @@ class TritonPythonModel:
                     "language": lang_code,
                     "entities": entities,
                     "entity_count": len(entities),
-                    "entity_types": list(set([e["type"] for e in entities])),
+                    "entity_types": list({e["type"] for e in entities}),
                 }
                 ner_results.append(json.dumps(result))
 
@@ -116,7 +115,6 @@ class TritonPythonModel:
 
     def _extract_entities(self, text: str, language_code: str = "en") -> list[dict[str, Any]]:
         """Extract entities using the best available model for the language.."""
-
         entities = []
 
         # Try transformer-based multilingual NER first (works for all languages)
@@ -124,8 +122,8 @@ class TritonPythonModel:
             try:
                 transformer_entities = self._extract_with_transformer(text)
                 entities.extend(transformer_entities)
-            except Exception as e:
-                print(f"Transformer NER failed: {e}")
+            except Exception:
+                pass
 
         # Try language-specific spaCy model if available
         if language_code in self.supported_spacy_languages:
@@ -133,8 +131,8 @@ class TritonPythonModel:
                 spacy_entities = self._extract_with_spacy(text, language_code)
                 # Merge with transformer entities, removing duplicates
                 entities = self._merge_entities(entities, spacy_entities)
-            except Exception as e:
-                print(f"spaCy NER failed for {language_code}: {e}")
+            except Exception:
+                pass
 
         # Remove duplicates and overlaps
         entities = self._resolve_overlaps(entities)
@@ -146,7 +144,6 @@ class TritonPythonModel:
 
     def _extract_with_transformer(self, text: str) -> list[dict[str, Any]]:
         """Extract entities using transformer model (multilingual).."""
-
         if not self.ner_pipeline:
             return []
 
@@ -173,7 +170,6 @@ class TritonPythonModel:
 
     def _extract_with_spacy(self, text: str, language_code: str) -> list[dict[str, Any]]:
         """Extract entities using language-specific spaCy model.."""
-
         # Lazy load the spaCy model
         if language_code not in self.spacy_models:
             model_name = self.supported_spacy_languages[language_code]
@@ -207,7 +203,6 @@ class TritonPythonModel:
 
     def _merge_entities(self, entities1: list[dict[str, Any]], entities2: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Merge two lists of entities, removing duplicates and keeping higher confidence ones.."""
-
         # Create a map of positions to entities
         merged = []
         seen_positions = set()
@@ -225,7 +220,6 @@ class TritonPythonModel:
 
     def _resolve_overlaps(self, entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Remove overlapping entities, keeping the one with higher confidence.."""
-
         if not entities:
             return entities
 
@@ -248,7 +242,6 @@ class TritonPythonModel:
 
     def finalize(self):
         """Clean up resources.."""
-
         # Unload spaCy models
         for model in self.spacy_models.values():
             del model

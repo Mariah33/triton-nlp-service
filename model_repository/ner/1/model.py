@@ -203,10 +203,7 @@ class TritonPythonModel:
             ner_results = []
 
             for text_bytes in texts:
-                if isinstance(text_bytes, bytes):
-                    text = text_bytes.decode("utf-8")
-                else:
-                    text = str(text_bytes)
+                text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
                 # Perform NER
                 entities = self._extract_entities(text)
@@ -214,7 +211,7 @@ class TritonPythonModel:
                     "text": text,
                     "entities": entities,
                     "entity_count": len(entities),
-                    "entity_types": list(set([e["type"] for e in entities])),
+                    "entity_types": list({e["type"] for e in entities}),
                 }
                 ner_results.append(json.dumps(result))
 
@@ -229,7 +226,6 @@ class TritonPythonModel:
 
     def _extract_entities(self, text: str) -> list[dict[str, Any]]:
         """Extract named entities from text.."""
-
         entities = []
 
         # Extract pattern-based entities first
@@ -267,36 +263,34 @@ class TritonPythonModel:
 
     def _extract_persons(self, text: str) -> list[dict[str, Any]]:
         """Extract person names.."""
-
         entities = []
         words = text.split()
 
         # Look for titles followed by names
         for i, word in enumerate(words):
-            if word in self.entity_patterns["PERSON"]["titles"]:
-                if i + 1 < len(words):
-                    # Check next 1-2 words as potential name
-                    name_parts = []
-                    for j in range(1, min(3, len(words) - i)):
-                        next_word = words[i + j]
-                        if next_word[0].isupper():
-                            name_parts.append(next_word)
-                        else:
-                            break
+            if word in self.entity_patterns["PERSON"]["titles"] and i + 1 < len(words):
+                # Check next 1-2 words as potential name
+                name_parts = []
+                for j in range(1, min(3, len(words) - i)):
+                    next_word = words[i + j]
+                    if next_word[0].isupper():
+                        name_parts.append(next_word)
+                    else:
+                        break
 
-                    if name_parts:
-                        full_name = f"{word} {' '.join(name_parts)}"
-                        start_idx = text.find(full_name)
-                        if start_idx != -1:
-                            entities.append(
-                                {
-                                    "text": full_name,
-                                    "type": "PERSON",
-                                    "start": start_idx,
-                                    "end": start_idx + len(full_name),
-                                    "confidence": 0.8,
-                                }
-                            )
+                if name_parts:
+                    full_name = f"{word} {' '.join(name_parts)}"
+                    start_idx = text.find(full_name)
+                    if start_idx != -1:
+                        entities.append(
+                            {
+                                "text": full_name,
+                                "type": "PERSON",
+                                "start": start_idx,
+                                "end": start_idx + len(full_name),
+                                "confidence": 0.8,
+                            }
+                        )
 
         # Look for capitalized word sequences that might be names
         capitalized_pattern = r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b"
@@ -326,7 +320,6 @@ class TritonPythonModel:
 
     def _extract_organizations(self, text: str) -> list[dict[str, Any]]:
         """Extract organization names.."""
-
         entities = []
 
         # Look for known organizations
@@ -363,7 +356,6 @@ class TritonPythonModel:
 
     def _extract_locations(self, text: str) -> list[dict[str, Any]]:
         """Extract location names.."""
-
         entities = []
 
         # Look for known locations
@@ -403,7 +395,6 @@ class TritonPythonModel:
 
     def _resolve_overlaps(self, entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Remove overlapping entities, keeping the one with higher confidence.."""
-
         if not entities:
             return entities
 

@@ -1,12 +1,12 @@
 """Core functionality for Triton NLP Service.."""
 
-from typing import Any, Optional
+from typing import Any
 
 
 class TritonNLPClient:
     """Main client for Triton NLP Service.."""
 
-    def __init__(self, url: str = "localhost:8001", protocol: str = "grpc"):
+    def __init__(self, url: str = "localhost:8001", protocol: str = "grpc") -> None:
         """Initialize Triton NLP client.
 
         Args:
@@ -20,7 +20,7 @@ class TritonNLPClient:
     def process(
         self,
         text: str,
-        services: Optional[list[str]] = None,
+        services: list[str] | None = None,
         source_language: str = "auto",
         target_language: str = "en",
     ) -> dict[str, Any]:
@@ -36,7 +36,6 @@ class TritonNLPClient:
             Processing results
         """
         # Implementation would go here
-        pass
 
     def detect_data_type(self, text: str, use_ml: bool = True) -> dict[str, Any]:
         """Detect data type of text.
@@ -49,4 +48,3 @@ class TritonNLPClient:
             Detection results
         """
         # Implementation would go here
-        pass

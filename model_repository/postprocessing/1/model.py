@@ -89,20 +89,18 @@ class TritonPythonModel:
 
     def _get_string_tensor(self, request, name: str, optional: bool = False) -> list[str]:
         """Helper to get string tensor values.."""
-
         tensor = pb_utils.get_input_tensor_by_name(request, name)
         if tensor is None:
             if optional:
                 return []
-            else:
-                raise ValueError(f"Required tensor '{name}' not found")
+            msg = f"Required tensor '{name}' not found"
+            raise ValueError(msg)
 
         values = tensor.as_numpy().tolist()
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in values]
 
-    def _format_data_type_result(self, data_type_dict: Dict) -> Dict:
+    def _format_data_type_result(self, data_type_dict: dict) -> dict:
         """Format data type detection results.."""
-
         if not data_type_dict:
             return {"detected": False, "type": "unknown"}
 
@@ -126,9 +124,8 @@ class TritonPythonModel:
 
         return formatted
 
-    def _format_ner_result(self, ner_dict: Dict) -> Dict:
+    def _format_ner_result(self, ner_dict: dict) -> dict:
         """Format NER results.."""
-
         if not ner_dict:
             return {"entities": [], "count": 0}
 
@@ -157,9 +154,8 @@ class TritonPythonModel:
 
         return formatted
 
-    def _format_transliteration_result(self, transliteration_dict: Dict) -> Dict:
+    def _format_transliteration_result(self, transliteration_dict: dict) -> dict:
         """Format transliteration results.."""
-
         if not transliteration_dict:
             return {"success": False}
 
@@ -173,9 +169,8 @@ class TritonPythonModel:
             "method": transliteration_dict.get("method", "unknown"),
         }
 
-    def _format_translation_result(self, translation_dict: Dict) -> Dict:
+    def _format_translation_result(self, translation_dict: dict) -> dict:
         """Format translation results.."""
-
         if not translation_dict:
             return {"success": False}
 
@@ -190,9 +185,8 @@ class TritonPythonModel:
             "alternatives": translation_dict.get("alternative_translations", []),
         }
 
-    def _generate_summary(self, result: Dict) -> Dict:
+    def _generate_summary(self, result: dict) -> dict:
         """Generate a summary of all results.."""
-
         summary = {
             "text_length": len(result["original_text"]),
             "services_applied": list(result["results"].keys()),
