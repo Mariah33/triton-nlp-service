@@ -4,7 +4,6 @@ Aggregates results from all NLP models and formats the final response
 """
 
 import json
-from typing import Any, Dict, List
 
 import numpy as np
 import triton_python_backend_utils as pb_utils
@@ -88,7 +87,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _get_string_tensor(self, request, name: str, optional: bool = False) -> List[str]:
+    def _get_string_tensor(self, request, name: str, optional: bool = False) -> list[str]:
         """Helper to get string tensor values.."""
 
         tensor = pb_utils.get_input_tensor_by_name(request, name)

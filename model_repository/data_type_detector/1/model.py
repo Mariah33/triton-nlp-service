@@ -3,10 +3,9 @@
 Detects various data types like phone numbers, passports, emails, etc.
 """
 
-from datetime import datetime
 import json
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import phonenumbers
@@ -152,7 +151,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _detect_data_types(self, text: str) -> Dict[str, Any]:
+    def _detect_data_types(self, text: str) -> dict[str, Any]:
         """Detect various data types in the text.."""
 
         text = text.strip()
@@ -242,7 +241,7 @@ class TritonPythonModel:
             "confidence": detections[0]["confidence"] if detections else 0.0,
         }
 
-    def _detect_phone_number(self, text: str) -> Dict[str, Any]:
+    def _detect_phone_number(self, text: str) -> dict[str, Any]:
         """Detect and validate phone numbers.."""
 
         try:
@@ -320,7 +319,7 @@ class TritonPythonModel:
             return f"****-****-****-{clean_number[-4:]}"
         return number
 
-    def _detect_iban(self, text: str) -> Dict[str, Any]:
+    def _detect_iban(self, text: str) -> dict[str, Any]:
         """Detect IBAN (International Bank Account Number).."""
 
         iban_pattern = r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$"
@@ -336,7 +335,7 @@ class TritonPythonModel:
             }
         return None
 
-    def _classify_general_text(self, text: str) -> Dict[str, Any]:
+    def _classify_general_text(self, text: str) -> dict[str, Any]:
         """Classify general text when no specific pattern matches.."""
 
         # Simple heuristics for general classification

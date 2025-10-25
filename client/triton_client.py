@@ -5,7 +5,6 @@ Tests all functionality: transliteration, translation, NER, and data type detect
 
 import argparse
 import json
-from typing import Any, Dict, List
 
 import numpy as np
 import tritonclient.grpc as grpcclient
@@ -57,7 +56,7 @@ class TritonNLPClient:
     def process_text(
         self,
         text: str,
-        services: List[str] = None,
+        services: list[str] = None,
         source_language: str = "auto",
         target_language: str = "en",
     ) -> Dict:
@@ -193,7 +192,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "translated_text")[0]
         return json.loads(result)
 
-    def _prepare_string_input(self, name: str, values: List[str]):
+    def _prepare_string_input(self, name: str, values: list[str]):
         """Prepare string input tensor.."""
 
         values_bytes = [v.encode("utf-8") for v in values]
@@ -208,7 +207,7 @@ class TritonNLPClient:
         input_tensor.set_data_from_numpy(values_np)
         return input_tensor
 
-    def _prepare_outputs(self, names: List[str]):
+    def _prepare_outputs(self, names: list[str]):
         """Prepare output tensors.."""
 
         outputs = []
@@ -219,7 +218,7 @@ class TritonNLPClient:
                 outputs.append(httpclient.InferRequestedOutput(name))
         return outputs
 
-    def _parse_string_output(self, response, name: str) -> List[str]:
+    def _parse_string_output(self, response, name: str) -> list[str]:
         """Parse string output from response.."""
 
         output = response.as_numpy(name)

@@ -4,16 +4,9 @@ Supports multiple language pairs
 """
 
 import json
-from typing import Dict, List
 
 import numpy as np
 import torch
-from transformers import (
-    M2M100ForConditionalGeneration,
-    M2M100Tokenizer,
-    MarianMTModel,
-    MarianTokenizer,
-)
 import triton_python_backend_utils as pb_utils
 
 
@@ -257,7 +250,7 @@ class TritonPythonModel:
 
         return " ".join(translated_words)
 
-    def _get_alternatives(self, text: str, lang_pair: str) -> List[str]:
+    def _get_alternatives(self, text: str, lang_pair: str) -> list[str]:
         """Get alternative translations.."""
 
         # In production, this would return multiple translation candidates

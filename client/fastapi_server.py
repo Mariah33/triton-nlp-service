@@ -5,12 +5,11 @@ Provides a user-friendly REST API interface
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import numpy as np
 from pydantic import BaseModel, Field
@@ -37,7 +36,7 @@ triton_client = None
 
 class TextRequest(BaseModel):
     text: str = Field(..., description="Input text to process")
-    services: Optional[List[str]] = Field(
+    services: Optional[list[str]] = Field(
         default=None,
         description="List of services to apply: data_type, ner, transliteration, translation",
     )
@@ -46,8 +45,8 @@ class TextRequest(BaseModel):
 
 
 class BatchTextRequest(BaseModel):
-    texts: List[str] = Field(..., description="List of texts to process")
-    services: Optional[List[str]] = Field(default=None)
+    texts: list[str] = Field(..., description="List of texts to process")
+    services: Optional[list[str]] = Field(default=None)
     source_language: Optional[str] = Field(default="auto")
     target_language: Optional[str] = Field(default="en")
 
@@ -238,7 +237,7 @@ async def run_in_executor(func, *args):
     return await loop.run_in_executor(executor, func, *args)
 
 
-def process_with_triton(text: str, services: List[str], source_lang: str, target_lang: str) -> Dict:
+def process_with_triton(text: str, services: list[str], source_lang: str, target_lang: str) -> Dict:
     """Process text using Triton ensemble model.."""
 
     # Prepare inputs
@@ -325,7 +324,7 @@ def extract_entities_with_triton(text: str) -> Dict:
     return json.loads(result)
 
 
-def prepare_string_input(name: str, values: List[str]):
+def prepare_string_input(name: str, values: list[str]):
     """Prepare string input tensor for Triton.."""
 
     values_bytes = [v.encode("utf-8") for v in values]
@@ -337,7 +336,7 @@ def prepare_string_input(name: str, values: List[str]):
     return input_tensor
 
 
-def parse_string_output(response, name: str) -> List[str]:
+def parse_string_output(response, name: str) -> list[str]:
     """Parse string output from Triton response.."""
 
     output = response.as_numpy(name)

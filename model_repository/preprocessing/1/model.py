@@ -2,7 +2,7 @@
 
 import json
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import triton_python_backend_utils as pb_utils
@@ -79,7 +79,7 @@ class TritonPythonModel:
 
         return text.strip()
 
-    def _extract_metadata(self, text: str) -> Dict[str, Any]:
+    def _extract_metadata(self, text: str) -> dict[str, Any]:
         """Extract basic metadata from text.."""
 
         return {
@@ -90,7 +90,7 @@ class TritonPythonModel:
             "detected_scripts": self._detect_scripts(text),
         }
 
-    def _detect_scripts(self, text: str) -> List[str]:
+    def _detect_scripts(self, text: str) -> list[str]:
         """Detect writing scripts in text.."""
 
         scripts = []

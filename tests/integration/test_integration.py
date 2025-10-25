@@ -2,7 +2,6 @@
 
 import json
 import time
-from typing import Dict, List
 
 from fastapi.testclient import TestClient
 import numpy as np

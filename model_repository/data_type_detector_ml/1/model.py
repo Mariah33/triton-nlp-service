@@ -3,10 +3,9 @@
 This version uses actual machine learning models for robust detection
 """
 
-from datetime import datetime
 import json
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import phonenumbers
@@ -195,7 +194,7 @@ class TritonPythonModel:
 
         # Email validation using specialized model
         try:
-            from email_validator import EmailNotValidError, validate_email
+            from email_validator import validate_email
 
             self.email_validator = validate_email
             print("Loaded email validator")
@@ -231,7 +230,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _detect_data_types_ml(self, text: str) -> Dict[str, Any]:
+    def _detect_data_types_ml(self, text: str) -> dict[str, Any]:
         """Detect data types using ML models.."""
 
         text = text.strip()
@@ -407,7 +406,7 @@ class TritonPythonModel:
             "ml_models_used": self._get_available_models(),
         }
 
-    def _detect_phone_with_library(self, text: str) -> Dict[str, Any]:
+    def _detect_phone_with_library(self, text: str) -> dict[str, Any]:
         """Detect phone numbers using phonenumbers library.."""
 
         try:
@@ -500,7 +499,7 @@ class TritonPythonModel:
                 return f"***-**-{clean[-4:]}"
         return text
 
-    def _deduplicate_detections(self, detections: List[Dict]) -> List[Dict]:
+    def _deduplicate_detections(self, detections: list[Dict]) -> list[Dict]:
         """Remove duplicate detections, keeping highest confidence.."""
 
         if not detections:
@@ -516,7 +515,7 @@ class TritonPythonModel:
         # Return sorted by confidence
         return sorted(by_type.values(), key=lambda x: x["confidence"], reverse=True)
 
-    def _fallback_pattern_detection(self, text: str) -> Dict[str, Any]:
+    def _fallback_pattern_detection(self, text: str) -> dict[str, Any]:
         """Basic pattern matching as fallback.."""
 
         # Simple patterns for common data types
@@ -550,7 +549,7 @@ class TritonPythonModel:
 
         return None
 
-    def _get_available_models(self) -> List[str]:
+    def _get_available_models(self) -> list[str]:
         """Return list of available ML models.."""
 
         models = []

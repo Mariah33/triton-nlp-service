@@ -1,9 +1,8 @@
 """Unit tests for data type detector ML model.."""
 
 import json
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
 import torch
 

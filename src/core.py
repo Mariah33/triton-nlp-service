@@ -1,6 +1,6 @@
 """Core functionality for Triton NLP Service.."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class TritonNLPClient:
@@ -20,10 +20,10 @@ class TritonNLPClient:
     def process(
         self,
         text: str,
-        services: Optional[List[str]] = None,
+        services: Optional[list[str]] = None,
         source_language: str = "auto",
         target_language: str = "en",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process text through NLP pipeline.
 
         Args:
@@ -38,7 +38,7 @@ class TritonNLPClient:
         # Implementation would go here
         pass
 
-    def detect_data_type(self, text: str, use_ml: bool = True) -> Dict[str, Any]:
+    def detect_data_type(self, text: str, use_ml: bool = True) -> dict[str, Any]:
         """Detect data type of text.
 
         Args:

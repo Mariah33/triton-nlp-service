@@ -4,11 +4,8 @@ Converts text from one script to another (e.g., Devanagari to Latin)
 """
 
 import json
-from typing import Dict, List
 
-from indicnlp.transliterate.unicode_transliterate import UnicodeIndicTransliterator
 import numpy as np
-import torch
 import triton_python_backend_utils as pb_utils
 
 
@@ -381,7 +378,7 @@ class TritonPythonModel:
         # Return the script with the most characters
         return max(scripts_count, key=scripts_count.get) if any(scripts_count.values()) else "unknown"
 
-    def _apply_mapping(self, text: str, mapping: Dict[str, str]) -> str:
+    def _apply_mapping(self, text: str, mapping: dict[str, str]) -> str:
         """Apply character mapping for transliteration.."""
 
         result = []

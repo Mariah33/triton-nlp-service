@@ -3,10 +3,9 @@
 Identifies entities like persons, organizations, locations, dates, etc.
 """
 
-from datetime import datetime
 import json
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import triton_python_backend_utils as pb_utils
@@ -228,7 +227,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _extract_entities(self, text: str) -> List[Dict[str, Any]]:
+    def _extract_entities(self, text: str) -> list[dict[str, Any]]:
         """Extract named entities from text.."""
 
         entities = []
@@ -266,7 +265,7 @@ class TritonPythonModel:
 
         return entities
 
-    def _extract_persons(self, text: str) -> List[Dict[str, Any]]:
+    def _extract_persons(self, text: str) -> list[dict[str, Any]]:
         """Extract person names.."""
 
         entities = []
@@ -325,7 +324,7 @@ class TritonPythonModel:
 
         return entities
 
-    def _extract_organizations(self, text: str) -> List[Dict[str, Any]]:
+    def _extract_organizations(self, text: str) -> list[dict[str, Any]]:
         """Extract organization names.."""
 
         entities = []
@@ -362,7 +361,7 @@ class TritonPythonModel:
 
         return entities
 
-    def _extract_locations(self, text: str) -> List[Dict[str, Any]]:
+    def _extract_locations(self, text: str) -> list[dict[str, Any]]:
         """Extract location names.."""
 
         entities = []
@@ -402,7 +401,7 @@ class TritonPythonModel:
 
         return entities
 
-    def _resolve_overlaps(self, entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _resolve_overlaps(self, entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Remove overlapping entities, keeping the one with higher confidence.."""
 
         if not entities:
