@@ -1,10 +1,11 @@
-"""
-Transliteration Model using AI4Bharat IndicXlit
+"""Transliteration Model using AI4Bharat IndicXlit.
+
 Converts text from one script to another (e.g., Devanagari to Latin)
 """
 
 import json
 from typing import Dict, List
+
 
 from indicnlp.transliterate.unicode_transliterate import UnicodeIndicTransliterator
 import numpy as np

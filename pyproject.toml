@@ -48,7 +48,7 @@ dependencies = [
     "onnxruntime>=1.15.0",
 
     # NLP Core
-    "spacy>=3.5.0",
+    "spacy>=3.7.0",
     "nltk>=3.8",
     "langdetect>=1.0.9",
 
@@ -64,7 +64,6 @@ dependencies = [
 
     # Transliteration
     "indic-nlp-library>=0.91",
-    "ai4bharat-transliteration>=1.1.0",
     "polyglot>=16.7.4",
     "PyICU>=2.11",
 
@@ -192,9 +191,14 @@ ci = [
     "codecov>=2.1.13",
 ]
 
+# Optional advanced transliteration (has build dependencies)
+transliteration = [
+    "ai4bharat-transliteration>=1.1.0",
+]
+
 # All development dependencies
 all = [
-    "triton-nlp-service[dev,docs,monitoring,perf,ci]",
+    "triton-nlp-service[dev,docs,monitoring,perf,ci,transliteration]",
 ]
 
 [project.urls]
