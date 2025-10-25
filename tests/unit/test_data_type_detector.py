@@ -1,11 +1,11 @@
 """Unit tests for data type detector ML model.."""
 
 import json
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()

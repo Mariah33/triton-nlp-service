@@ -1,10 +1,10 @@
 """Unit tests for transliteration model."""
 
 import json
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -279,9 +279,9 @@ class TestTransliteration:
         test_mappings = [
             ("क", "devanagari", "k"),  # Devanagari 'ka'
             ("ख", "devanagari", "kh"),  # Devanagari 'kha'
-            ("ا", "arabic", "a"),  # Arabic 'alif'
-            ("А", "cyrillic", "A"),  # Cyrillic 'A'
-            ("Α", "greek", "A"),  # Greek 'Alpha'
+            ("ا", "arabic", "a"),  # Arabic 'alif'  # noqa: RUF001
+            ("А", "cyrillic", "A"),  # Cyrillic 'A'  # noqa: RUF001
+            ("Α", "greek", "A"),  # Greek 'Alpha'  # noqa: RUF001
         ]
 
         for char, script, expected in test_mappings:

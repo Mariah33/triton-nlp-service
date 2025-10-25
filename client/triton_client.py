@@ -30,7 +30,6 @@ class TritonNLPClient:
             msg = f"Triton server at {url} is not live"
             raise ConnectionError(msg)
 
-
         # Check model status
         self.check_models()
 
@@ -225,7 +224,6 @@ def run_tests() -> None:
     """Run comprehensive tests of all NLP services.."""
     client = TritonNLPClient()
 
-
     # Test cases
     test_cases = [
         {"text": "john.smith@example.com", "description": "Email detection"},
@@ -254,7 +252,6 @@ def run_tests() -> None:
     ]
 
     for _i, test in enumerate(test_cases, 1):
-
         try:
             # Test individual services
 
@@ -289,8 +286,6 @@ def run_tests() -> None:
 
         except Exception:
             pass
-
-
 
 
 if __name__ == "__main__":

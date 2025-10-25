@@ -4,7 +4,6 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -62,7 +61,15 @@ class TestMultilingualNER:
         # Mock the transformer output
         mock_results = []
         for entity_text, entity_type in expected_entities:
-            mock_results.append({"word": entity_text, "entity_group": entity_type[:3].upper(), "start": text.find(entity_text), "end": text.find(entity_text) + len(entity_text), "score": 0.9})
+            mock_results.append(
+                {
+                    "word": entity_text,
+                    "entity_group": entity_type[:3].upper(),
+                    "start": text.find(entity_text),
+                    "end": text.find(entity_text) + len(entity_text),
+                    "score": 0.9,
+                }
+            )
 
         model.ner_pipeline.return_value = mock_results
 

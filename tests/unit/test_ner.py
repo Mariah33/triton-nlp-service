@@ -1,10 +1,10 @@
 """Unit tests for Named Entity Recognition model."""
 
 import json
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -248,7 +248,9 @@ class TestNER:
     @pytest.mark.unit
     def test_multiple_entity_types(self, model):
         """Test extraction of multiple entity types from single text."""
-        text = "Dr. Smith from Microsoft will present in New York on January 15, 2024 at 3:00 PM. Contact: smith@microsoft.com or call (555) 123-4567."
+        text = (
+            "Dr. Smith from Microsoft will present in New York on January 15, 2024 at 3:00 PM. Contact: smith@microsoft.com or call (555) 123-4567."
+        )
 
         entities = model._extract_entities(text)
 

@@ -1,10 +1,10 @@
 """Unit tests for language detection model."""
 
 import json
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -40,8 +40,8 @@ class TestLanguageDetector:
             ("Witaj, jak się masz?", "pl", 0.95),
             ("Hej, hur mår du?", "sv", 0.90),
             # Asian Languages
-            ("こんにちは、元気ですか？", "ja", 0.99),
-            ("你好，你好吗？", "zh-cn", 0.99),
+            ("こんにちは、元気ですか？", "ja", 0.99),  # noqa: RUF001
+            ("你好，你好吗？", "zh-cn", 0.99),  # noqa: RUF001
             ("안녕하세요, 어떻게 지내세요?", "ko", 0.99),
             ("สวัสดี คุณสบายดีหรือเปล่า", "th", 0.99),
             ("Xin chào, bạn khỏe không?", "vi", 0.95),
@@ -51,7 +51,7 @@ class TestLanguageDetector:
             ("مرحبا، كيف حالك؟", "ar", 0.99),
             ("שלום, מה שלומך?", "he", 0.95),
             ("سلام، حال شما چطور است؟", "fa", 0.90),
-            ("Merhaba, nasılsın?", "tr", 0.95),
+            ("Merhaba, nasılsın?", "tr", 0.95),  # noqa: RUF001
             ("Sawubona, unjani?", "zu", 0.85),  # Zulu - lower confidence expected
         ],
     )

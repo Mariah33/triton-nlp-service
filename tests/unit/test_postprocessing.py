@@ -1,10 +1,10 @@
 """Unit tests for postprocessing model."""
 
 import json
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -217,7 +217,14 @@ class TestPostprocessing:
     @pytest.mark.unit
     def test_format_translation_result_no_alternatives(self, model):
         """Test translation formatting when no alternatives provided."""
-        translation_dict = {"original": "hello", "translated": "hola", "source_language": "en", "target_language": "es", "confidence": 0.8, "method": "dictionary"}
+        translation_dict = {
+            "original": "hello",
+            "translated": "hola",
+            "source_language": "en",
+            "target_language": "es",
+            "confidence": 0.8,
+            "method": "dictionary",
+        }
 
         result = model._format_translation_result(translation_dict)
 
