@@ -31,7 +31,7 @@
   "python.analysis.autoImportCompletions": true,
 
   // Editor settings
-  "editor.rulers": [100],
+  "editor.rulers": [150],
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
 

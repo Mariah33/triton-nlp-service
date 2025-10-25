@@ -231,7 +231,7 @@ include-package-data = true
 target-version = "py310"
 
 # Line length
-line-length = 100
+line-length = 150
 
 # File/folder exclusions
 exclude = [
