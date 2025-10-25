@@ -15,7 +15,8 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """Data type detection model using regex patterns and validation."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
         # Initialize patterns for various data types
@@ -122,7 +123,8 @@ class TritonPythonModel:
             },
         }
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -289,8 +291,8 @@ class TritonPythonModel:
             return False
 
         # Luhn algorithm
-        def luhn_checksum(card_number):
-            def digits_of(n):
+        def luhn_checksum(card_number: str) -> int:
+            def digits_of(n: str | int) -> list[int]:
                 return [int(d) for d in str(n)]
 
             digits = digits_of(card_number)

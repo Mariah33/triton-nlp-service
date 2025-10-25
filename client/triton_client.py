@@ -190,7 +190,7 @@ class TritonNLPClient:
         result = self._parse_string_output(response, "translated_text")[0]
         return json.loads(result)
 
-    def _prepare_string_input(self, name: str, values: list[str]):
+    def _prepare_string_input(self, name: str, values: list[str]) -> grpcclient.InferInput | httpclient.InferInput:
         """Prepare string input tensor."""
         values_bytes = [v.encode("utf-8") for v in values]
         values_np = np.array(values_bytes, dtype=np.object_)
@@ -204,7 +204,9 @@ class TritonNLPClient:
         input_tensor.set_data_from_numpy(values_np)
         return input_tensor
 
-    def _prepare_outputs(self, names: list[str]):
+    def _prepare_outputs(
+        self, names: list[str]
+    ) -> list[grpcclient.InferRequestedOutput] | list[httpclient.InferRequestedOutput]:
         """Prepare output tensors."""
         outputs = []
         for name in names:
@@ -214,7 +216,9 @@ class TritonNLPClient:
                 outputs.append(httpclient.InferRequestedOutput(name))
         return outputs
 
-    def _parse_string_output(self, response, name: str) -> list[str]:
+    def _parse_string_output(
+        self, response: grpcclient.InferResult | httpclient.InferResult, name: str
+    ) -> list[str]:
         """Parse string output from response."""
         output = response.as_numpy(name)
         return [v.decode("utf-8") if isinstance(v, bytes) else str(v) for v in output.flatten()]

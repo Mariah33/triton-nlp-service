@@ -12,7 +12,8 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """Transliteration model for script conversion."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
         # Initialize transliterators for various language pairs
@@ -264,7 +265,8 @@ class TritonPythonModel:
             },
         }
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -395,5 +397,5 @@ class TritonPythonModel:
 
         return "".join(result)
 
-    def finalize(self):
-        pass
+    def finalize(self) -> None:
+        """Clean up resources."""

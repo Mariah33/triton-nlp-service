@@ -4,6 +4,7 @@ Aggregates results from all NLP models and formats the final response
 """
 
 import json
+from typing import Any
 
 import numpy as np
 import triton_python_backend_utils as pb_utils
@@ -12,10 +13,12 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """Postprocessing model to aggregate and format results."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -87,7 +90,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _get_string_tensor(self, request, name: str, optional: bool = False) -> list[str]:
+    def _get_string_tensor(self, request: Any, name: str, optional: bool = False) -> list[str]:  # noqa: ANN401
         """Helper to get string tensor values."""
         tensor = pb_utils.get_input_tensor_by_name(request, name)
         if tensor is None:

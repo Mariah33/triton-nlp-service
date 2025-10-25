@@ -19,7 +19,8 @@ DetectorFactory.seed = 0
 class TritonPythonModel:
     """Language detection model using langdetect."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
         # Language name mapping (ISO 639-1 codes to full names)
@@ -81,7 +82,8 @@ class TritonPythonModel:
             "zh-tw": "Chinese (Traditional)",
         }
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -154,5 +156,6 @@ class TritonPythonModel:
                 "error": str(e),
             }
 
-    def finalize(self):
+    def finalize(self) -> None:
+        """Clean up resources."""
         pass

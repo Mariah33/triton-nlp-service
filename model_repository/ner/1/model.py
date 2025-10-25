@@ -14,7 +14,8 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """NER model for entity extraction."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
         # Entity patterns for rule-based NER
@@ -192,7 +193,8 @@ class TritonPythonModel:
             },
         }
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -415,5 +417,5 @@ class TritonPythonModel:
 
         return resolved
 
-    def finalize(self):
-        pass
+    def finalize(self) -> None:
+        """Clean up resources."""

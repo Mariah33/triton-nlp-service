@@ -11,7 +11,7 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """Preprocessing model for text normalization and preparation."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
         """`initialize` is called only once when the model is being loaded."""
         self.model_config = model_config = json.loads(args["model_config"])
 
@@ -23,7 +23,7 @@ class TritonPythonModel:
         self.output0_dtype = pb_utils.triton_string_to_numpy(output0_config["data_type"])
         self.output1_dtype = pb_utils.triton_string_to_numpy(output1_config["data_type"])
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
         """`execute` must be implemented in every Python model. `execute`.
 
         function receives a list of pb_utils.InferenceRequest as the only
@@ -104,5 +104,5 @@ class TritonPythonModel:
 
         return scripts if scripts else ["unknown"]
 
-    def finalize(self):
+    def finalize(self) -> None:
         """`finalize` is called only once when the model is being unloaded."""

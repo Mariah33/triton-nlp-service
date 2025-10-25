@@ -13,7 +13,8 @@ import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     """Translation model supporting multiple language pairs."""
 
-    def initialize(self, args):
+    def initialize(self, args: dict) -> None:
+        """Initialize the model - called once when model is loaded."""
         self.model_config = json.loads(args["model_config"])
 
         # Device configuration
@@ -99,7 +100,8 @@ class TritonPythonModel:
             },
         }
 
-    def execute(self, requests):
+    def execute(self, requests: list) -> list:
+        """Execute inference requests."""
         responses = []
 
         for request in requests:
@@ -167,7 +169,7 @@ class TritonPythonModel:
             method = "dictionary"
         elif lang_pair in self.language_pairs:
             # In production, use actual model here
-            # translated = self._model_translate(text, lang_pair)
+            # translated = self._model_translate(text, lang_pair)  # noqa: ERA001
             translated = f"[Translation from {source_lang} to {target_lang}]: {text}"
             confidence = 0.85
             method = "neural_mt"
@@ -256,7 +258,7 @@ class TritonPythonModel:
 
         return alternatives[:3]  # Return top 3 alternatives
 
-    def finalize(self):
+    def finalize(self) -> None:
         """Clean up resources."""
         # Unload models if loaded
         for model in self.models.values():
