@@ -15,7 +15,7 @@ class TestTranslation:
     @pytest.fixture
     def model(self):
         """Create translation model instance."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils), patch("sys.modules.torch", MagicMock()):
+        with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils, "torch": MagicMock()}):
             import sys
 
             sys.path.insert(0, "model_repository/translation/1")

@@ -25,7 +25,7 @@ class TestDataTypeDetectorML:
     @pytest.fixture
     def mock_model(self, model_config):
         """Create a mock model instance.."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils):
+        with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             # Import after patching
             from model_repository.data_type_detector_ml.model import TritonPythonModel
 
@@ -209,7 +209,7 @@ class TestDataTypeDetectorRegex:
     @pytest.fixture
     def regex_model(self):
         """Create regex-based model for comparison.."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils):
+        with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             from model_repository.data_type_detector.model import TritonPythonModel
 
             model = TritonPythonModel()

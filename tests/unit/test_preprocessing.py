@@ -15,7 +15,7 @@ class TestPreprocessing:
     @pytest.fixture
     def model(self):
         """Create preprocessing model instance."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils):
+        with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             import sys
 
             sys.path.insert(0, "model_repository/preprocessing/1")

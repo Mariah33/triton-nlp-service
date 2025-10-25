@@ -15,7 +15,7 @@ class TestPostprocessing:
     @pytest.fixture
     def model(self):
         """Create postprocessing model instance."""
-        with patch("sys.modules.triton_python_backend_utils", mock_pb_utils):
+        with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             import sys
 
             sys.path.insert(0, "model_repository/postprocessing/1")
