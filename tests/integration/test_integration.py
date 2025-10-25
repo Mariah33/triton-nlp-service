@@ -273,6 +273,7 @@ class TestEndToEndScenarios:
         response = requests.post(
             f"{api_client}/process",
             json={"text": test_text, "services": ["data_type", "ner"]},
+            timeout=30,
         )
 
         assert response.status_code == 200
@@ -306,6 +307,7 @@ class TestEndToEndScenarios:
                     "services": ["transliteration", "translation"],
                     "target_language": test.get("target_lang", "en"),
                 },
+                timeout=30,
             )
 
             assert response.status_code == 200
