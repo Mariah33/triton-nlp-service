@@ -1,0 +1,164 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+default_language_version:
+  python: python3.10
+
+repos:
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: debug-statements
+      - id: mixed-line-ending
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: detect-private-key
+      - id: fix-byte-order-marker
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: pretty-format-json
+        args: ['--autofix', '--no-sort-keys']
+
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.13
+    hooks:
+      # Run the linter (configured in pyproject.toml)
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter (configured in pyproject.toml)
+      - id: ruff-format
+
+  # Type checking with mypy (configured in pyproject.toml)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-pyyaml
+          - types-python-dateutil
+        args: [--config-file=pyproject.toml]
+        exclude: ^(tests/|docs/)
+
+  # Security checks with bandit (configured in pyproject.toml)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-ll"]
+        exclude: ^(tests/|docs/)
+
+  # Check for security vulnerabilities
+  - repo: https://github.com/twu/skjold
+    rev: v0.6.1
+    hooks:
+      - id: skjold
+        verbose: true
+
+  # Markdown formatting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        args: ["--fix"]
+
+  # YAML formatting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-d, "{extends: relaxed, rules: {line-length: {max: 120}}}"]
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.1-beta
+    hooks:
+      - id: hadolint-docker
+        args: ["--ignore", "DL3008", "--ignore", "DL3009"]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+
+  # Remove unused imports
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args:
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+          - --remove-duplicate-keys
+          - --in-place
+        exclude: __init__.py
+
+  # Upgrade Python syntax
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py310-plus]
+
+  # Check for common security issues
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
+
+  # License header checks (optional)
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: insert-license
+        files: \.py$
+        args:
+          - --license-filepath
+          - LICENSE
+          - --comment-style
+          - "#"
+        exclude: ^(tests/|docs/|scripts/)
+
+  # Jupyter notebook cleaning
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.1
+    hooks:
+      - id: nbqa-ruff
+        args: [--fix]
+      - id: nbqa-mypy
+
+  # Check requirements.txt
+  - repo: https://github.com/peterdemin/pip-compile-multi
+    rev: v2.6.3
+    hooks:
+      - id: pip-compile-multi-verify
+
+# Configuration for ci
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

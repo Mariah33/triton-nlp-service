@@ -1,0 +1,43 @@
+name: "data_type_detector_ml"
+backend: "python"
+max_batch_size: 32
+
+input [
+  {
+    name: "text"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+output [
+  {
+    name: "detection_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+instance_group [
+  {
+    count: 2
+    kind: KIND_GPU
+  }
+]
+
+# Larger shared memory for transformer models
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/env.tar.gz"}
+}
+
+parameters: {
+  key: "shm-size",
+  value: {string_value: "1g"}
+}
+
+# Dynamic batching for better GPU utilization
+dynamic_batching {
+  preferred_batch_size: [ 8, 16 ]
+  max_queue_delay_microseconds: 100
+}

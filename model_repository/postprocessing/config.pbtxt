@@ -1,0 +1,67 @@
+name: "postprocessing"
+backend: "python"
+max_batch_size: 32
+
+input [
+  {
+    name: "original_text"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "preprocessed_text"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "metadata"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "data_type_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "ner_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "transliteration_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "translation_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "requested_services"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+    optional: true
+  }
+]
+
+output [
+  {
+    name: "final_result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+instance_group [
+  {
+    count: 2
+    kind: KIND_CPU
+  }
+]
+
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/env.tar.gz"}
+}

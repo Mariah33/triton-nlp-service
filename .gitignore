@@ -1,0 +1,296 @@
+# Claude Code
+CLAUDE.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Machine Learning / Data Science
+# Models
+*.h5
+*.hdf5
+*.pb
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.tflite
+*.keras
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.weights
+checkpoints/
+saved_models/
+model_weights/
+pretrained/
+
+# Datasets
+data/
+datasets/
+raw_data/
+processed_data/
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.arrow
+*.tfrecord
+*.npy
+*.npz
+*.json.gz
+*.jsonl
+
+# Logs and outputs
+logs/
+*.log
+runs/
+wandb/
+mlruns/
+lightning_logs/
+tensorboard/
+output/
+results/
+experiments/
+
+# NLTK data
+nltk_data/
+
+# spaCy models (keep config, ignore downloaded models)
+*.spacy
+en_core_web_*/
+en_core_web_sm/
+en_core_web_md/
+en_core_web_lg/
+
+# Hugging Face cache
+.cache/
+cache/
+transformers_cache/
+huggingface/
+
+# Triton Specific
+triton_cache/
+triton-cache/
+model_store/
+*.plan
+*.engine
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.cert
+credentials.json
+service-account.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Profiling
+*.prof
+*.lprof
+profile_stats
+*.pyprof
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Pytype static type analyzer
+.pytype/
+
+# Ruff
+.ruff_cache/
+
+# UV
+.uv/
+uv.lock
+
+# Cython
+*.c
+*.cpp
+*.html
+cython_debug/
+
+# Build artifacts
+*.o
+*.a
+*.dylib
+*.dll
+
+# Monitoring
+prometheus-data/
+grafana-data/
+
+# Documentation builds
+docs/_build/
+docs/site/
+site/
+
+# Benchmark results
+benchmark_results.json
+benchmark_results/
+*.benchmark
+
+# Project specific
+# Keep these if you want to ignore specific Triton model versions
+# model_repository/*/2/
+# model_repository/*/3/
+
+# Ignore compiled proto files if you generate them
+*_pb2.py
+*_pb2_grpc.py

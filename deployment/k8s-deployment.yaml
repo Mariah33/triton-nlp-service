@@ -1,0 +1,193 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: triton-nlp
+---
+# ConfigMap for model configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: triton-config
+  namespace: triton-nlp
+data:
+  model-config.json: |
+    {
+      "models": [
+        "preprocessing",
+        "data_type_detector",
+        "transliteration",
+        "translation",
+        "ner",
+        "postprocessing",
+        "ensemble_nlp"
+      ],
+      "backend_config": {
+        "python": {
+          "shm-default-byte-size": 268435456
+        }
+      }
+    }
+---
+# PersistentVolumeClaim for model repository
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-repository-pvc
+  namespace: triton-nlp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: gp2
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-nlp-server
+  namespace: triton-nlp
+  labels:
+    app: triton-nlp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: triton-nlp
+  template:
+    metadata:
+      labels:
+        app: triton-nlp
+    spec:
+      containers:
+      - name: triton-server
+        image: triton-nlp-service:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+        - name: grpc
+          containerPort: 8001
+        - name: metrics
+          containerPort: 8002
+        env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        - name: TRITON_MODEL_REPOSITORY
+          value: "/models"
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        - name: model-repository
+          mountPath: /models
+        - name: shm
+          mountPath: /dev/shm
+        livenessProbe:
+          httpGet:
+            path: /v2/health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /v2/health/ready
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: model-repository
+        persistentVolumeClaim:
+          claimName: model-repository-pvc
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 2Gi
+      nodeSelector:
+        node.kubernetes.io/instance-type: g4dn.xlarge  # GPU instance
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton-nlp-service
+  namespace: triton-nlp
+  labels:
+    app: triton-nlp
+spec:
+  type: LoadBalancer
+  selector:
+    app: triton-nlp
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  - name: grpc
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  - name: metrics
+    port: 8002
+    targetPort: 8002
+    protocol: TCP
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: triton-nlp-hpa
+  namespace: triton-nlp
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: triton-nlp-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: triton_inference_request_rate
+      target:
+        type: AverageValue
+        averageValue: "1000"
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: triton-nlp-monitor
+  namespace: triton-nlp
+spec:
+  selector:
+    matchLabels:
+      app: triton-nlp
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

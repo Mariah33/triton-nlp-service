@@ -1,0 +1,162 @@
+name: "ensemble_nlp"
+platform: "ensemble"
+max_batch_size: 16
+
+input [
+  {
+    name: "text"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  },
+  {
+    name: "services"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+    optional: true
+  },
+  {
+    name: "source_language"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    optional: true
+  },
+  {
+    name: "target_language"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    optional: true
+  }
+]
+
+output [
+  {
+    name: "result"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+ensemble_scheduling {
+  step [
+    {
+      model_name: "preprocessing"
+      model_version: -1
+      input_map {
+        key: "raw_text"
+        value: "text"
+      }
+      output_map {
+        key: "preprocessed_text"
+        value: "processed_text"
+      }
+      output_map {
+        key: "text_metadata"
+        value: "metadata"
+      }
+    },
+    {
+      model_name: "data_type_detector"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "processed_text"
+      }
+      output_map {
+        key: "detection_result"
+        value: "data_type_result"
+      }
+    },
+    {
+      model_name: "ner"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "processed_text"
+      }
+      output_map {
+        key: "entities"
+        value: "ner_result"
+      }
+    },
+    {
+      model_name: "transliteration"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "processed_text"
+      }
+      input_map {
+        key: "source_script"
+        value: "source_language"
+      }
+      input_map {
+        key: "target_script"
+        value: "target_language"
+      }
+      output_map {
+        key: "transliterated_text"
+        value: "transliteration_result"
+      }
+    },
+    {
+      model_name: "translation"
+      model_version: -1
+      input_map {
+        key: "text"
+        value: "processed_text"
+      }
+      input_map {
+        key: "source_language"
+        value: "source_language"
+      }
+      input_map {
+        key: "target_language"
+        value: "target_language"
+      }
+      output_map {
+        key: "translated_text"
+        value: "translation_result"
+      }
+    },
+    {
+      model_name: "postprocessing"
+      model_version: -1
+      input_map {
+        key: "original_text"
+        value: "text"
+      }
+      input_map {
+        key: "preprocessed_text"
+        value: "processed_text"
+      }
+      input_map {
+        key: "metadata"
+        value: "metadata"
+      }
+      input_map {
+        key: "data_type_result"
+        value: "data_type_result"
+      }
+      input_map {
+        key: "ner_result"
+        value: "ner_result"
+      }
+      input_map {
+        key: "transliteration_result"
+        value: "transliteration_result"
+      }
+      input_map {
+        key: "translation_result"
+        value: "translation_result"
+      }
+      input_map {
+        key: "requested_services"
+        value: "services"
+      }
+      output_map {
+        key: "final_result"
+        value: "result"
+      }
+    }
+  ]
+}
