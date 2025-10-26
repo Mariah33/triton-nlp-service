@@ -13,19 +13,28 @@ services:
       - "8002:8002"  # Metrics
     volumes:
       - ./model_repository:/models
+      - ./models_cache:/models_cache
       - triton-cache:/root/.cache
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - CUDA_VISIBLE_DEVICES=0
+      # GPU configuration - commented out for macOS (Docker on macOS doesn't support GPU passthrough)
+      # Uncomment these lines if running on Linux with NVIDIA GPU
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - CUDA_VISIBLE_DEVICES=0
       - TRITON_MODEL_REPOSITORY=/models
       - TRITON_BACKEND_CONFIG=python,shm-default-byte-size=268435456  # 256MB shared memory
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+      # Model cache paths - mounted from host
+      - SPACY_DATA=/models_cache/spacy
+      - NLTK_DATA=/models_cache/nltk_data
+      - HF_HOME=/models_cache/huggingface
+      - TRANSFORMERS_CACHE=/models_cache/transformers
+      - TORCH_HOME=/models_cache/torch
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]

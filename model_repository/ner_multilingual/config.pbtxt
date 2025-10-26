@@ -30,8 +30,3 @@ instance_group [
     kind: KIND_CPU
   }
 ]
-
-parameters: {
-  key: "EXECUTION_ENV_PATH",
-  value: {string_value: "$$TRITON_MODEL_DIRECTORY/env.tar.gz"}
-}

@@ -11,12 +11,23 @@ PYTEST := pytest
 PROJECT_NAME := triton-nlp-service
 PYTHON_VERSION := 3.10
 
+# macOS ICU configuration (needed for PyICU)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    ICU_VERSION := $(shell brew list --versions icu4c 2>/dev/null | awk '{print $$2}' | cut -d. -f1)
+    ifneq ($(ICU_VERSION),)
+        export PKG_CONFIG_PATH := /opt/homebrew/opt/icu4c@$(ICU_VERSION)/lib/pkgconfig:$(PKG_CONFIG_PATH)
+        export PATH := /opt/homebrew/opt/icu4c@$(ICU_VERSION)/bin:$(PATH)
+    endif
+endif
+
 # Directories
 SRC_DIR := src
 TEST_DIR := tests
 MODEL_DIR := model_repository
 CLIENT_DIR := client
 DOCS_DIR := docs
+MODELS_CACHE_DIR := models_cache
 
 # Docker variables
 DOCKER_IMAGE := triton-nlp-service
@@ -35,9 +46,10 @@ NC := \033[0m # No Color
 
 # Phony targets
 .PHONY: help install install-dev lint format test test-unit test-integration test-coverage \
-        run-local run-docker build-docker push-docker clean clean-cache clean-docker \
+        run-local run-docker build-docker rebuild-docker push-docker clean clean-cache clean-docker \
         setup-pre-commit check security-check type-check docs serve-docs \
-        validate-models benchmark create-env
+        validate-models benchmark create-env install-uv ci-setup ci-test ci-build \
+        download-models clean-models
 
 # Help target
 help: ## Show this help message
@@ -53,21 +65,19 @@ help: ## Show this help message
 	@echo "  make run-local     - Run service locally"
 
 # Environment setup
-create-env: ## Create virtual environment with uv
+.venv: install-uv ## Create virtual environment with uv (file target)
 	@echo "$(GREEN)Creating virtual environment with uv...$(NC)"
 	$(UV) venv --python $(PYTHON_VERSION)
 	@echo "$(GREEN)Virtual environment created. Activate with: source .venv/bin/activate$(NC)"
 
+create-env: .venv ## Alias for .venv target
+
 # Installation targets
-install: ## Install production dependencies with uv
+install: .venv ## Install production dependencies with uv
 	@echo "$(GREEN)Installing production dependencies with uv...$(NC)"
 	$(UV) pip install -e .
-	@echo "$(GREEN)Installing spaCy models...$(NC)"
-	$(PYTHON) -m spacy download en_core_web_sm
-	$(PYTHON) -m spacy download en_core_web_md
-	@echo "$(GREEN)Downloading NLTK data...$(NC)"
-	$(PYTHON) -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('maxent_ne_chunker'); nltk.download('words')"
 	@echo "$(GREEN)Production dependencies installed successfully!$(NC)"
+	@echo "$(YELLOW)Note: Run 'make download-models' to download ML models$(NC)"
 
 install-dev: install ## Install development dependencies with uv
 	@echo "$(GREEN)Installing development dependencies with uv...$(NC)"
@@ -76,17 +86,24 @@ install-dev: install ## Install development dependencies with uv
 	pre-commit install
 	@echo "$(GREEN)Development environment ready!$(NC)"
 
-install-all: ## Install all optional dependencies
+install-all: .venv ## Install all optional dependencies
 	@echo "$(GREEN)Installing all dependencies with uv...$(NC)"
+ifeq ($(UNAME_S),Darwin)
+	@echo "$(YELLOW)Setting ICU environment for macOS (ICU version: $(ICU_VERSION))...$(NC)"
+	PKG_CONFIG_PATH="/opt/homebrew/opt/icu4c@$(ICU_VERSION)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
+	PATH="/opt/homebrew/opt/icu4c@$(ICU_VERSION)/bin:$$PATH" \
 	$(UV) pip install -e ".[all]"
+else
+	$(UV) pip install -e ".[all]"
+endif
 	@echo "$(GREEN)All dependencies installed!$(NC)"
 
-install-docs: ## Install documentation dependencies
+install-docs: .venv ## Install documentation dependencies
 	@echo "$(GREEN)Installing documentation dependencies...$(NC)"
 	$(UV) pip install -e ".[docs]"
 	@echo "$(GREEN)Documentation dependencies installed!$(NC)"
 
-install-monitoring: ## Install monitoring dependencies
+install-monitoring: .venv ## Install monitoring dependencies
 	@echo "$(GREEN)Installing monitoring dependencies...$(NC)"
 	$(UV) pip install -e ".[monitoring]"
 	@echo "$(GREEN)Monitoring dependencies installed!$(NC)"
@@ -97,6 +114,28 @@ install-uv: ## Install uv package manager if not present
 		curl -LsSf https://astral.sh/uv/install.sh | sh; \
 		echo "$(GREEN)uv installed successfully!$(NC)"; \
 	}
+
+# Model downloads
+download-models: install ## Download all ML models to models_cache directory
+	@echo "$(GREEN)Creating models cache directory...$(NC)"
+	@mkdir -p $(MODELS_CACHE_DIR)/spacy
+	@mkdir -p $(MODELS_CACHE_DIR)/nltk_data
+	@mkdir -p $(MODELS_CACHE_DIR)/huggingface
+	@mkdir -p $(MODELS_CACHE_DIR)/transformers
+	@echo "$(GREEN)Downloading spaCy models to $(MODELS_CACHE_DIR)/spacy...$(NC)"
+	$(UV) pip install --target=$(MODELS_CACHE_DIR)/spacy en-core-web-sm en-core-web-md
+	@echo "$(GREEN)Downloading NLTK data to $(MODELS_CACHE_DIR)/nltk_data...$(NC)"
+	NLTK_DATA=$(MODELS_CACHE_DIR)/nltk_data $(PYTHON) -c "import nltk; nltk.download('punkt', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('punkt_tab', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('averaged_perceptron_tagger', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('maxent_ne_chunker', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('words', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('stopwords', download_dir='$(MODELS_CACHE_DIR)/nltk_data')"
+	@echo "$(GREEN)Downloading transformer models to $(MODELS_CACHE_DIR)/transformers (this may take a while)...$(NC)"
+	HF_HOME=$(MODELS_CACHE_DIR)/huggingface TRANSFORMERS_CACHE=$(MODELS_CACHE_DIR)/transformers $(PYTHON) -c "from transformers import AutoModelForSequenceClassification, AutoTokenizer; AutoModelForSequenceClassification.from_pretrained('dslim/bert-base-NER'); AutoTokenizer.from_pretrained('dslim/bert-base-NER')" || echo "$(YELLOW)Transformer model download failed, will download at runtime$(NC)"
+	@echo "$(GREEN)All models downloaded to $(MODELS_CACHE_DIR)!$(NC)"
+	@echo "$(BLUE)Models cache size:$(NC)"
+	@du -sh $(MODELS_CACHE_DIR) 2>/dev/null || echo "Calculating..."
+
+clean-models: ## Remove downloaded models cache
+	@echo "$(YELLOW)Removing models cache...$(NC)"
+	rm -rf $(MODELS_CACHE_DIR)
+	@echo "$(GREEN)Models cache removed!$(NC)"
 
 # Linting and formatting
 lint: ## Run ruff linter on all Python files
@@ -128,6 +167,7 @@ test: test-unit test-integration ## Run all tests
 
 test-unit: ## Run unit tests with pytest
 	@echo "$(GREEN)Running unit tests with pytest...$(NC)"
+	export PYTHONPATH=$(SRC_DIR):$(MODEL_DIR):$(CLIENT_DIR)
 	$(PYTEST) $(TEST_DIR)/unit \
 		--verbose \
 		--color=yes \
@@ -209,7 +249,13 @@ run-client-test: ## Run client test suite
 	$(PYTHON) triton_client.py --test
 
 # Docker operations
-run-docker: build-docker ## Run service with Docker Compose
+run-docker: download-models ## Run service with Docker Compose (downloads models and builds if needed)
+	@if ! docker image inspect $(DOCKER_IMAGE):$(DOCKER_TAG) >/dev/null 2>&1; then \
+		echo "$(YELLOW)Docker image not found. Building...$(NC)"; \
+		$(MAKE) build-docker; \
+	else \
+		echo "$(BLUE)Docker image already exists: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"; \
+	fi
 	@echo "$(GREEN)Starting services with Docker Compose...$(NC)"
 	docker-compose up -d
 	@echo "$(GREEN)Waiting for services to be ready...$(NC)"
@@ -223,10 +269,15 @@ run-docker: build-docker ## Run service with Docker Compose
 
 build-docker: ## Build Docker image
 	@echo "$(GREEN)Building Docker image...$(NC)"
-	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	DOCKER_BUILDKIT=0 docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 	@echo "$(GREEN)Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
 
-push-docker: ## Push Docker image to registry
+rebuild-docker: ## Force rebuild Docker image (no cache)
+	@echo "$(GREEN)Force rebuilding Docker image (no cache)...$(NC)"
+	DOCKER_BUILDKIT=0 docker build --no-cache -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	@echo "$(GREEN)Docker image rebuilt: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
+
+push-docker: build-docker ## Push Docker image to registry (builds if needed)
 	@echo "$(GREEN)Pushing Docker image to registry...$(NC)"
 	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
@@ -284,7 +335,7 @@ serve-docs: ## Serve documentation locally
 	cd $(DOCS_DIR) && mkdocs serve -p 8088
 
 # Cleaning
-clean: clean-cache clean-docker ## Clean all generated files and caches
+clean: clean-cache clean-docker ## Clean all generated files and caches (preserves models_cache)
 	@echo "$(GREEN)Cleaning project...$(NC)"
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
@@ -303,6 +354,7 @@ clean: clean-cache clean-docker ## Clean all generated files and caches
 	rm -f coverage.xml
 	rm -rf .venv
 	@echo "$(GREEN)Project cleaned!$(NC)"
+	@echo "$(YELLOW)Note: models_cache preserved. Run 'make clean-models' to remove downloaded models.$(NC)"
 
 clean-cache: ## Clean Python and model caches
 	@echo "$(YELLOW)Cleaning caches...$(NC)"
@@ -318,7 +370,7 @@ clean-docker: ## Clean Docker resources
 	@echo "$(GREEN)Docker resources cleaned!$(NC)"
 
 # Development helpers
-setup-pre-commit: ## Setup pre-commit hooks
+setup-pre-commit: install-dev ## Setup pre-commit hooks (requires dev dependencies)
 	@echo "$(GREEN)Setting up pre-commit hooks...$(NC)"
 	pre-commit install
 	pre-commit install --hook-type commit-msg

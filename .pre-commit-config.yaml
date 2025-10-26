@@ -96,18 +96,6 @@ repos:
     hooks:
       - id: shellcheck
 
-  # Remove unused imports
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.1
-    hooks:
-      - id: autoflake
-        args:
-          - --remove-all-unused-imports
-          - --remove-unused-variables
-          - --remove-duplicate-keys
-          - --in-place
-        exclude: __init__.py
-
   # Upgrade Python syntax
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.15.0

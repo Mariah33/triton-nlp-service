@@ -12,6 +12,7 @@ from langdetect import DetectorFactory, detect, detect_langs
 import numpy as np
 import triton_python_backend_utils as pb_utils
 
+
 # Set seed for reproducible results
 DetectorFactory.seed = 0
 

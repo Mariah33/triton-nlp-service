@@ -9,6 +9,7 @@ import torch
 
 from model_repository.data_type_detector.model import TritonPythonModel
 
+
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
 

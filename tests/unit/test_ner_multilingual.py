@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
 

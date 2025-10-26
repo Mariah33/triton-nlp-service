@@ -103,10 +103,8 @@ dependencies = [
 # Development dependencies
 dev = [
     # Code Quality
-    "ruff>=0.1.0",
+    "ruff>=0.14.2",  # Handles formatting, linting, and import sorting
     "mypy>=1.5.0",
-    "black>=23.7.0",
-    "isort>=5.12.0",
     "bandit[toml]>=1.7.5",
     "safety>=2.3.5",
     "pre-commit>=3.3.3",
@@ -179,7 +177,7 @@ monitoring = [
 # Performance testing
 perf = [
     "locust>=2.15.1",
-    "artillery>=2.0.0",
+    # Note: artillery is a Node.js tool, install separately: npm install -g artillery
 ]
 
 # CI/CD dependencies
@@ -228,13 +226,14 @@ include-package-data = true
 "*" = ["*.yaml", "*.yml", "*.json", "*.pbtxt", "*.md"]
 
 # ----------------------------------------------------------------------------
-# Ruff - Linting and Formatting
+# Ruff - Unified Linting, Formatting, and Import Sorting
+# Replaces: black (formatting), isort (import sorting), flake8 (linting)
 # ----------------------------------------------------------------------------
 [tool.ruff]
 # Python version target
 target-version = "py310"
 
-# Line length
+# Line length (applies to both linting and formatting)
 line-length = 150
 
 # File/folder exclusions
@@ -344,24 +343,42 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 fixable = ["ALL"]
 unfixable = []
 
+# Code Formatting (replaces Black)
 [tool.ruff.format]
-# Use double quotes for strings.
+# Use double quotes for strings (black-compatible)
 quote-style = "double"
 
-# Indent with spaces, not tabs.
+# Indent with spaces, not tabs
 indent-style = "space"
 
-# Respect magic trailing commas.
+# Respect magic trailing commas (preserves black behavior)
 skip-magic-trailing-comma = false
 
-# Automatically detect line ending.
+# Automatically detect line ending
 line-ending = "auto"
 
+# Format docstrings
+docstring-code-format = true
+
+# Import Sorting (replaces isort)
 [tool.ruff.lint.isort]
+# Define project-specific modules
 known-first-party = ["src", "client", "model_repository"]
+
+# Combine "from x import a" and "from x import b" into "from x import a, b"
 combine-as-imports = true
+
+# Force sorting within import sections
 force-sort-within-sections = true
+
+# Order of import sections
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+# Add blank line between import groups
+lines-after-imports = 2
+
+# Force imports to top of file (with exceptions in per-file-ignores)
+force-to-top = []
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
@@ -621,6 +638,7 @@ build_command = "python -m build"
 [tool.uv]
 index-url = "https://pypi.org/simple"
 extra-index-url = ["https://download.pytorch.org/whl/cpu"]
+index-strategy = "unsafe-best-match"  # Allow picking best version across all indexes
 
 
 [tool.uv.pip]

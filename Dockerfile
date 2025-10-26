@@ -1,5 +1,5 @@
 # Triton Inference Server with NLP Models
-FROM nvcr.io/nvidia/tritonserver:23.06-py3
+FROM nvcr.io/nvidia/tritonserver:24.08-py3
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -22,26 +22,24 @@ COPY requirements.txt /workspace/
 RUN pip3 install --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt
 
-# Download spaCy models
-RUN python3 -m spacy download en_core_web_sm && \
-    python3 -m spacy download en_core_web_md
+# Note: ML models (spaCy, NLTK, transformers) are mounted from host via docker-compose
+# This significantly reduces image size and build time
+# Run 'make download-models' on host before starting containers
 
-# Download NLTK data
-RUN python3 -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('maxent_ne_chunker'); nltk.download('words')"
-
-# Create directories for model repository
-RUN mkdir -p /models
+# Create directories for model repository and model cache
+RUN mkdir -p /models /models_cache
 
 # Copy model repository
 COPY model_repository /models
 
 # Create Python environment packages for each model
 RUN cd /models && \
+    PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')") && \
     for model_dir in preprocessing data_type_detector transliteration translation ner postprocessing; do \
         if [ -d "$model_dir/1" ]; then \
-            echo "Creating environment for $model_dir"; \
+            echo "Creating environment for $model_dir (Python $PYTHON_VERSION)"; \
             cd /models/$model_dir/1 && \
-            tar -czf ../env.tar.gz -C /usr/local/lib/python3.10/dist-packages . || true; \
+            tar -czf ../env.tar.gz -C /usr/local/lib/python${PYTHON_VERSION}/dist-packages . || true; \
         fi \
     done
 

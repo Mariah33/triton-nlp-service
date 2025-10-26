@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 import tritonclient.grpc as grpcclient
 import uvicorn
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -83,7 +84,7 @@ async def startup_event() -> None:
             raise ConnectionError(msg)
         logger.info("Connected to Triton server")
     except Exception as e:
-        logger.exception(f"Failed to connect to Triton server: {e}")
+        logger.exception("Failed to connect to Triton server")
         raise
 
 
@@ -151,8 +152,8 @@ async def process_text(request: TextRequest) -> JSONResponse:
         )
         return JSONResponse(content=result)
     except Exception as e:
-        logger.exception(f"Error processing text: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Error processing text")
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/batch_process")
@@ -173,7 +174,7 @@ async def batch_process_text(request: BatchTextRequest) -> JSONResponse:
         results = await asyncio.gather(*tasks)
         return JSONResponse(content={"results": results})
     except Exception as e:
-        logger.exception(f"Error in batch processing: {e}")
+        logger.exception("Error in batch processing")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -184,8 +185,8 @@ async def detect_data_type(request: DataTypeRequest) -> JSONResponse:
         result = await run_in_executor(detect_type_with_triton, request.text)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.exception(f"Error detecting data type: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Error detecting data type")
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/transliterate")
@@ -195,7 +196,7 @@ async def transliterate_text(request: TransliterationRequest) -> JSONResponse:
         result = await run_in_executor(transliterate_with_triton, request.text, request.source_script, request.target_script)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.exception(f"Error transliterating text: {e}")
+        logger.exception("Error transliterating text")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -206,7 +207,7 @@ async def translate_text(request: TranslationRequest) -> JSONResponse:
         result = await run_in_executor(translate_with_triton, request.text, request.source_language, request.target_language)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.exception(f"Error translating text: {e}")
+        logger.exception("Error translating text")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -217,7 +218,7 @@ async def extract_entities(request: NERRequest) -> JSONResponse:
         result = await run_in_executor(extract_entities_with_triton, request.text)
         return JSONResponse(content=result)
     except Exception as e:
-        logger.exception(f"Error extracting entities: {e}")
+        logger.exception("Error extracting entities")
         raise HTTPException(status_code=500, detail=str(e))
 
 

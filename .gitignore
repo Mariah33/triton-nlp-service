@@ -290,3 +290,8 @@ benchmark_results/
 # Ignore compiled proto files if you generate them
 *_pb2.py
 *_pb2_grpc.py
+
+CLAUDE.md
+
+# Downloaded ML models (large files - download with 'make download-models')
+models_cache/

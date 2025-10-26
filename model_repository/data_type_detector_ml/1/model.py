@@ -15,7 +15,7 @@ import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
-    """ML-based data type detection model.""
+    """ML-based data type detection model."""
 
     def initialize(self, args):
         self.model_config = json.loads(args["model_config"])

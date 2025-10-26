@@ -90,7 +90,9 @@ class TritonPythonModel:
             for text_bytes, lang_bytes in zip(texts, language_codes, strict=False):
                 text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
-                lang_code = (lang_bytes.decode("utf-8") if isinstance(lang_bytes, bytes) else str(lang_bytes)) if lang_bytes is not None else "en"  # Default to English
+                lang_code = (
+                    (lang_bytes.decode("utf-8") if isinstance(lang_bytes, bytes) else str(lang_bytes)) if lang_bytes is not None else "en"
+                )  # Default to English
 
                 # Perform multilingual NER
                 entities = self._extract_entities(text, lang_code)
