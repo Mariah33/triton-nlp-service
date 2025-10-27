@@ -66,35 +66,45 @@ help: ## Show this help message
 
 # Environment setup
 .venv: install-uv ## Create virtual environment with uv (file target)
-	@echo "$(GREEN)Creating virtual environment with uv...$(NC)"
-	$(UV) venv --python $(PYTHON_VERSION)
-	@echo "$(GREEN)Virtual environment created. Activate with: source .venv/bin/activate$(NC)"
+	@if [ ! -d ".venv" ]; then \
+		echo "$(GREEN)Creating virtual environment with uv...$(NC)"; \
+		$(UV) venv --python $(PYTHON_VERSION); \
+		echo "$(GREEN)Virtual environment created. Activate with: source .venv/bin/activate$(NC)"; \
+	else \
+		echo "$(GREEN)Virtual environment already exists at .venv$(NC)"; \
+	fi
 
 create-env: .venv ## Alias for .venv target
 
+# Lock file management
+lock: install-uv ## Generate/update uv.lock file
+	@echo "$(GREEN)Generating uv.lock file...$(NC)"
+	$(UV) lock
+	@echo "$(GREEN)Lock file updated!$(NC)"
+
 # Installation targets
-install: .venv ## Install production dependencies with uv
+install: .venv ## Install production dependencies with uv (using lock file)
 	@echo "$(GREEN)Installing production dependencies with uv...$(NC)"
-	$(UV) pip install -e .
+	$(UV) sync --frozen
 	@echo "$(GREEN)Production dependencies installed successfully!$(NC)"
 	@echo "$(YELLOW)Note: Run 'make download-models' to download ML models$(NC)"
 
-install-dev: install ## Install development dependencies with uv
+install-dev: .venv ## Install development dependencies with uv (using lock file)
 	@echo "$(GREEN)Installing development dependencies with uv...$(NC)"
-	$(UV) pip install -e ".[dev]"
+	$(UV) sync --frozen --extra dev
 	@echo "$(GREEN)Setting up pre-commit hooks...$(NC)"
-	pre-commit install
+	.venv/bin/pre-commit install
 	@echo "$(GREEN)Development environment ready!$(NC)"
 
-install-all: .venv ## Install all optional dependencies
+install-all: .venv ## Install all optional dependencies (using lock file)
 	@echo "$(GREEN)Installing all dependencies with uv...$(NC)"
 ifeq ($(UNAME_S),Darwin)
 	@echo "$(YELLOW)Setting ICU environment for macOS (ICU version: $(ICU_VERSION))...$(NC)"
 	PKG_CONFIG_PATH="/opt/homebrew/opt/icu4c@$(ICU_VERSION)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
 	PATH="/opt/homebrew/opt/icu4c@$(ICU_VERSION)/bin:$$PATH" \
-	$(UV) pip install -e ".[all]"
+	$(UV) sync --frozen --all-extras
 else
-	$(UV) pip install -e ".[all]"
+	$(UV) sync --frozen --all-extras
 endif
 	@echo "$(GREEN)All dependencies installed!$(NC)"
 
@@ -116,18 +126,16 @@ install-uv: ## Install uv package manager if not present
 	}
 
 # Model downloads
-download-models: install ## Download all ML models to models_cache directory
+download-models: install ## Download NLTK data and transformer models to models_cache (spaCy in Docker image)
 	@echo "$(GREEN)Creating models cache directory...$(NC)"
-	@mkdir -p $(MODELS_CACHE_DIR)/spacy
 	@mkdir -p $(MODELS_CACHE_DIR)/nltk_data
 	@mkdir -p $(MODELS_CACHE_DIR)/huggingface
 	@mkdir -p $(MODELS_CACHE_DIR)/transformers
-	@echo "$(GREEN)Downloading spaCy models to $(MODELS_CACHE_DIR)/spacy...$(NC)"
-	$(UV) pip install --target=$(MODELS_CACHE_DIR)/spacy en-core-web-sm en-core-web-md
+	@echo "$(YELLOW)Note: spaCy models are downloaded during Docker build (Python packages)$(NC)"
 	@echo "$(GREEN)Downloading NLTK data to $(MODELS_CACHE_DIR)/nltk_data...$(NC)"
-	NLTK_DATA=$(MODELS_CACHE_DIR)/nltk_data $(PYTHON) -c "import nltk; nltk.download('punkt', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('punkt_tab', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('averaged_perceptron_tagger', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('maxent_ne_chunker', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('words', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('stopwords', download_dir='$(MODELS_CACHE_DIR)/nltk_data')"
+	@NLTK_DATA=$(MODELS_CACHE_DIR)/nltk_data $(PYTHON) -c "import nltk; nltk.download('punkt', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('punkt_tab', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('averaged_perceptron_tagger', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('maxent_ne_chunker', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('words', download_dir='$(MODELS_CACHE_DIR)/nltk_data'); nltk.download('stopwords', download_dir='$(MODELS_CACHE_DIR)/nltk_data')" || echo "$(YELLOW)Some NLTK data failed to download$(NC)"
 	@echo "$(GREEN)Downloading transformer models to $(MODELS_CACHE_DIR)/transformers (this may take a while)...$(NC)"
-	HF_HOME=$(MODELS_CACHE_DIR)/huggingface TRANSFORMERS_CACHE=$(MODELS_CACHE_DIR)/transformers $(PYTHON) -c "from transformers import AutoModelForSequenceClassification, AutoTokenizer; AutoModelForSequenceClassification.from_pretrained('dslim/bert-base-NER'); AutoTokenizer.from_pretrained('dslim/bert-base-NER')" || echo "$(YELLOW)Transformer model download failed, will download at runtime$(NC)"
+	@HF_HOME=$(MODELS_CACHE_DIR)/huggingface TRANSFORMERS_CACHE=$(MODELS_CACHE_DIR)/transformers $(PYTHON) -c "from transformers import AutoModelForSequenceClassification, AutoTokenizer; AutoModelForSequenceClassification.from_pretrained('dslim/bert-base-NER'); AutoTokenizer.from_pretrained('dslim/bert-base-NER')" || echo "$(YELLOW)Transformer model download failed, will download at runtime$(NC)"
 	@echo "$(GREEN)All models downloaded to $(MODELS_CACHE_DIR)!$(NC)"
 	@echo "$(BLUE)Models cache size:$(NC)"
 	@du -sh $(MODELS_CACHE_DIR) 2>/dev/null || echo "Calculating..."
@@ -267,14 +275,14 @@ run-docker: download-models ## Run service with Docker Compose (downloads models
 	@echo "  Metrics: http://localhost:8002"
 	@echo "  FastAPI: http://localhost:8080"
 
-build-docker: ## Build Docker image
-	@echo "$(GREEN)Building Docker image...$(NC)"
-	DOCKER_BUILDKIT=0 docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+build-docker: ## Build Docker image (using BuildKit for caching)
+	@echo "$(GREEN)Building Docker image with BuildKit...$(NC)"
+	DOCKER_BUILDKIT=1 docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 	@echo "$(GREEN)Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
 
 rebuild-docker: ## Force rebuild Docker image (no cache)
 	@echo "$(GREEN)Force rebuilding Docker image (no cache)...$(NC)"
-	DOCKER_BUILDKIT=0 docker build --no-cache -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	DOCKER_BUILDKIT=1 docker build --no-cache -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 	@echo "$(GREEN)Docker image rebuilt: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
 
 push-docker: build-docker ## Push Docker image to registry (builds if needed)
@@ -376,16 +384,13 @@ setup-pre-commit: install-dev ## Setup pre-commit hooks (requires dev dependenci
 	pre-commit install --hook-type commit-msg
 	@echo "$(GREEN)Pre-commit hooks installed!$(NC)"
 
-update-deps: ## Update all dependencies to latest versions
-	@echo "$(GREEN)Updating dependencies...$(NC)"
-	$(UV) pip compile requirements.in -o requirements.txt --upgrade
-	$(UV) pip compile requirements-dev.in -o requirements-dev.txt --upgrade
-	@echo "$(GREEN)Dependencies updated!$(NC)"
+update-deps: install-uv ## Update all dependencies to latest versions and regenerate lock file
+	@echo "$(GREEN)Updating dependencies and regenerating lock file...$(NC)"
+	$(UV) lock --upgrade
+	@echo "$(GREEN)Dependencies updated! Review changes with: git diff uv.lock$(NC)"
 
-freeze-deps: ## Freeze current dependencies
-	@echo "$(GREEN)Freezing dependencies...$(NC)"
-	$(UV) pip freeze > requirements-frozen.txt
-	@echo "$(GREEN)Dependencies frozen to requirements-frozen.txt$(NC)"
+freeze-deps: lock ## Alias for 'make lock' - freeze current dependencies
+	@echo "$(GREEN)Dependencies frozen in uv.lock$(NC)"
 
 # CI/CD helpers
 ci-setup: install-uv install-dev ## Setup CI environment

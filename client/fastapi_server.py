@@ -4,8 +4,9 @@ Provides a user-friendly REST API interface
 """
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import AsyncGenerator, Callable
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 import json
 import logging
 from typing import Any
@@ -73,9 +74,10 @@ class NERRequest(BaseModel):
     text: str = Field(..., description="Text for entity extraction")
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Initialize Triton client on startup."""
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Lifespan context manager for FastAPI application."""
     global triton_client
     try:
         triton_client = grpcclient.InferenceServerClient(url="localhost:8001")
@@ -83,9 +85,20 @@ async def startup_event() -> None:
             msg = "Triton server is not live"
             raise ConnectionError(msg)
         logger.info("Connected to Triton server")
+        yield
     except Exception as e:
         logger.exception("Failed to connect to Triton server")
         raise
+    finally:
+        if triton_client:
+            triton_client.close()
+
+app = FastAPI(
+    title="Triton NLP Service API",
+    description="REST API for NLP services including transliteration, translation, NER, and data type detection",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 
 @app.get("/")

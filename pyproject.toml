@@ -45,7 +45,7 @@ dependencies = [
     "transformers>=4.35.0",
     "sentence-transformers>=2.2.2",
     "onnx>=1.14.0",
-    "onnxruntime>=1.15.0",
+    "onnxruntime>=1.15.0,<1.20.0",  # Cross-platform (Linux, macOS) - 1.20+ lacks macOS ARM64 wheels
 
     # NLP Core
     "spacy>=3.7.0",
@@ -72,7 +72,10 @@ dependencies = [
     "sacremoses>=0.0.53",
 
     # Triton Client
-    "tritonclient[all]>=2.34.0",
+    # Linux: Full client with perf-analyzer
+    "tritonclient[all]>=2.34.0; sys_platform == 'linux'",
+    # macOS: HTTP/gRPC client only (perf-analyzer is Linux-only)
+    "tritonclient[http,grpc]>=2.34.0; sys_platform == 'darwin'",
     "grpcio>=1.54.0",
     "protobuf>=3.20.3",
 
@@ -83,7 +86,7 @@ dependencies = [
     "pydantic-settings>=2.0.0",
 
     # Data Processing
-    "numpy>=1.21.0",
+    "numpy>=1.21.0,<2.0",  # Pin to <2.0 for TensorFlow compatibility
     "pandas>=2.0.0",
     "scikit-learn>=1.3.0",
 
@@ -639,6 +642,15 @@ build_command = "python -m build"
 index-url = "https://pypi.org/simple"
 extra-index-url = ["https://download.pytorch.org/whl/cpu"]
 index-strategy = "unsafe-best-match"  # Allow picking best version across all indexes
+
+# Explicitly support both Linux and macOS platforms (both ARM64 and x86_64)
+# This ensures the lock file includes wheels for all supported environments
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",   # Linux x86_64 (Docker)
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",  # Linux ARM64 (Docker on ARM)
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",   # macOS Apple Silicon
+    "sys_platform == 'darwin' and platform_machine == 'x86_64'",  # macOS Intel
+]
 
 
 [tool.uv.pip]

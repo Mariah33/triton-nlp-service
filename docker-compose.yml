@@ -22,8 +22,7 @@ services:
       # - CUDA_VISIBLE_DEVICES=0
       - TRITON_MODEL_REPOSITORY=/models
       - TRITON_BACKEND_CONFIG=python,shm-default-byte-size=268435456  # 256MB shared memory
-      # Model cache paths - mounted from host
-      - SPACY_DATA=/models_cache/spacy
+      # Model cache paths - mounted from host (spaCy models are in Docker image)
       - NLTK_DATA=/models_cache/nltk_data
       - HF_HOME=/models_cache/huggingface
       - TRANSFORMERS_CACHE=/models_cache/transformers
