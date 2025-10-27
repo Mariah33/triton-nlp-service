@@ -85,7 +85,7 @@ lock: install-uv ## Generate/update uv.lock file
 # Installation targets
 install: .venv ## Install production dependencies with uv (using lock file)
 	@echo "$(GREEN)Installing production dependencies with uv...$(NC)"
-	$(UV) sync --frozen
+	$(UV) sync --frozen --no-dev
 	@echo "$(GREEN)Production dependencies installed successfully!$(NC)"
 	@echo "$(YELLOW)Note: Run 'make download-models' to download ML models$(NC)"
 

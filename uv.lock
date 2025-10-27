@@ -3499,29 +3499,8 @@ wheels = [
 name = "perf-analyzer"
 version = "0.1.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.11' and platform_machine == 'arm64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'arm64' and sys_platform == 'darwin'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/19/b0/8dc899977ddd9d0d672ffb6c5da2a94fda4975cb7526572d2120101fd707/perf_analyzer-0.1.0-py3-none-any.whl", hash = "sha256:3c7d7b790b0fbcfcd478063f7d1450dbaa5e71c127a25ee810841d1a06bc5748", size = 2277, upload-time = "2025-05-28T15:56:39.331Z" },
-]
-
-[[package]]
-name = "perf-analyzer"
-version = "2.59.1"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux'",
-    "python_full_version >= '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux'",
-    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "python_full_version >= '3.11' and platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/01/0b/89940fa2c8415c3637a24b8f22ab4cef1ea28872acab31d17eb98d7ddc21/perf_analyzer-2.59.1-py3-none-manylinux_2_38_aarch64.whl", hash = "sha256:493ac232e55fa4467aeb007aafe48e0ace67198b5012d4a43489c5d5d543fed4", size = 6766351, upload-time = "2025-08-13T00:39:50.239Z" },
-    { url = "https://files.pythonhosted.org/packages/e7/5c/a178c441c82f558c8ffd9a621738b7b63040bca4d392e455a49e1c20e5ac/perf_analyzer-2.59.1-py3-none-manylinux_2_38_x86_64.whl", hash = "sha256:1719ad97306f442eed16a8abe7930ab81cd84c61658b8bbe864bee6520c7a656", size = 7176325, upload-time = "2025-08-13T00:33:15.998Z" },
 ]
 
 [[package]]
@@ -4234,6 +4213,8 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/80/bd/3a294fc5ffb160a90ce77561d2515633c8d2cdf193946a166634b9bbe91e/python_rapidjson-1.22-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:3ef62df35345bfed909f1e6c20f00463734d940bc6c5aa07b4d4d476552dde48", size = 2492644, upload-time = "2025-10-21T07:04:08.727Z" },
     { url = "https://files.pythonhosted.org/packages/93/ee/1c6e7c799ea6fdf3aa01b7a28475072cf58f8a19eb44effa1ef4c27721d3/python_rapidjson-1.22-cp310-cp310-musllinux_1_2_ppc64le.whl", hash = "sha256:b8b949e48ee88b4d327fd0c4113997f0be039b2edeed553f6559bd7e65772a41", size = 2606626, upload-time = "2025-10-21T07:04:10.305Z" },
     { url = "https://files.pythonhosted.org/packages/ff/25/36c0bf80c7a065de3779c6c852d31d739902c23cf917c6a4f856c354f099/python_rapidjson-1.22-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:bb6e342ff552cd7adf72db5eda8ce1420d48dc9a5a57c96b878dccb32f2ce7ce", size = 2606845, upload-time = "2025-10-21T07:04:12.074Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/fa/ce8ffbab3e8803077b3222e9db0b2b3ce8815310375510a87bb66b63a555/python_rapidjson-1.22-cp310-cp310-win32.whl", hash = "sha256:0fe6b0d132b93d59e02dc8dabfc54b41c4e2768f83154ac9140a9c9d488761cd", size = 128083, upload-time = "2025-10-21T07:04:13.437Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/44/7af15eee68a47cd89026e9e5d82a61db012b8e6dcf1f428d0b1740cc73c7/python_rapidjson-1.22-cp310-cp310-win_amd64.whl", hash = "sha256:922a467d1f9c1cb9605d1f9640b34fc6fd773bf1b8f310016bfde512cddda0e9", size = 148244, upload-time = "2025-10-21T07:04:14.448Z" },
     { url = "https://files.pythonhosted.org/packages/b7/65/e6a450d3d0ede42f1deed32d53df5bbe0368a919e5a1591126e895845a49/python_rapidjson-1.22-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:8c60e4040268f5b9158c13131f031db056b04a22fd5389d5f5603fee764d95ea", size = 210747, upload-time = "2025-10-21T07:04:15.783Z" },
     { url = "https://files.pythonhosted.org/packages/55/eb/105f6cbf37d5ece1e52e6f1f4c7d2c71480374af8a14f1f55863bb0396ac/python_rapidjson-1.22-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a626af0bac6aa6f46ad1977b5bdbc1929274c7af546ccf5472147c53cd46d7bc", size = 209720, upload-time = "2025-10-21T07:04:17.157Z" },
     { url = "https://files.pythonhosted.org/packages/14/18/e1d4951f93b491feca08a4d4442809766ea0757a14f312958157e08772d7/python_rapidjson-1.22-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:069b84d012586177b2ad112ae3feede4f502fce55e39c9691d023ce450216e53", size = 1665215, upload-time = "2025-10-21T07:04:18.579Z" },
@@ -4242,6 +4223,8 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/84/d1/1959247a7a3dec0741cda13018349f0aa938a08e70b66cd634f0701120ce/python_rapidjson-1.22-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:8ab3e37ea8499dc1e7ff89ea8bab04eb2048477d72937cb476a8f0f00fd7e77d", size = 2513615, upload-time = "2025-10-21T07:04:25.884Z" },
     { url = "https://files.pythonhosted.org/packages/fd/f8/3d7bfb69b2e58461427d02c271cf95d85df68f5a66ab1883c0117507a67d/python_rapidjson-1.22-cp311-cp311-musllinux_1_2_ppc64le.whl", hash = "sha256:6a37a32d59505c014a88400da041b4f6ec4c27483741d061db908a180052e437", size = 2626309, upload-time = "2025-10-21T07:04:27.398Z" },
     { url = "https://files.pythonhosted.org/packages/19/dd/25f7db053cebd489afcf7e12b96a006c40c75669afcff40a70914c098f64/python_rapidjson-1.22-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:04fccccc9551ad01c57cea6a22c2ca39a6fbec650896be9470b01343f6652403", size = 2622744, upload-time = "2025-10-21T07:04:28.583Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/5b/333540aacd6f4502ab23581cc277f328107ca809a13b929c27ac7eb1e079/python_rapidjson-1.22-cp311-cp311-win32.whl", hash = "sha256:c0f9a921326145709925fee889ffae0a7acdbd5b4608e19eff2106ea0e285d25", size = 128068, upload-time = "2025-10-21T07:04:30.232Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/91/2e0875b7f63887ba120a9914aec7d16993c7f728ddf51297c353664b668b/python_rapidjson-1.22-cp311-cp311-win_amd64.whl", hash = "sha256:f8a489ada1bf16e64fd3ed66f565cceff49fc554fa3eb08ac047069368495ca4", size = 148204, upload-time = "2025-10-21T07:04:31.203Z" },
 ]
 
 [[package]]
@@ -6040,6 +6023,7 @@ dependencies = [
     { name = "onnx", version = "1.19.1", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "onnxruntime" },
     { name = "pandas" },
+    { name = "perf-analyzer" },
     { name = "phonenumbers" },
     { name = "polyglot" },
     { name = "presidio-analyzer" },
@@ -6070,9 +6054,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "transformers" },
     { name = "tritonclient", version = "2.51.0", source = { registry = "https://pypi.org/simple" }, extra = ["grpc", "http"], marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine != 'x86_64' and sys_platform == 'darwin') or sys_platform == 'linux'" },
-    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, extra = ["all"], marker = "sys_platform == 'linux'" },
-    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, extra = ["grpc", "http"], marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
+    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, extra = ["grpc", "http"], marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "validators" },
@@ -6135,6 +6117,7 @@ all = [
     { name = "structlog" },
     { name = "time-machine" },
     { name = "tox" },
+    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, extra = ["all"], marker = "sys_platform == 'linux'" },
     { name = "types-python-dateutil" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
@@ -6209,6 +6192,7 @@ monitoring = [
 perf = [
     { name = "locust", version = "2.18.4", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
     { name = "locust", version = "2.42.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "tritonclient", version = "2.61.0", source = { registry = "https://pypi.org/simple" }, extra = ["all"], marker = "sys_platform == 'linux'" },
 ]
 transliteration = [
     { name = "ai4bharat-transliteration" },
@@ -6255,6 +6239,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-fastapi", marker = "extra == 'monitoring'", specifier = ">=0.40b0" },
     { name = "opentelemetry-sdk", marker = "extra == 'monitoring'", specifier = ">=1.19.0" },
     { name = "pandas", specifier = ">=2.0.0" },
+    { name = "perf-analyzer", specifier = "==0.1.0" },
     { name = "phonenumbers", specifier = ">=8.13.0" },
     { name = "polyglot", specifier = ">=16.7.4" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.3.3" },
@@ -6305,8 +6290,8 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.65.0" },
     { name = "transformers", specifier = ">=4.35.0" },
     { name = "triton-nlp-service", extras = ["dev", "docs", "monitoring", "perf", "ci", "transliteration"], marker = "extra == 'all'" },
-    { name = "tritonclient", extras = ["all"], marker = "sys_platform == 'linux'", specifier = ">=2.34.0" },
-    { name = "tritonclient", extras = ["http", "grpc"], marker = "sys_platform == 'darwin'", specifier = ">=2.34.0" },
+    { name = "tritonclient", extras = ["all"], marker = "sys_platform == 'linux' and extra == 'perf'", specifier = ">=2.34.0" },
+    { name = "tritonclient", extras = ["http", "grpc"], specifier = ">=2.34.0" },
     { name = "typer", specifier = ">=0.9.0" },
     { name = "types-python-dateutil", marker = "extra == 'dev'", specifier = ">=2.8.19" },
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.12" },
@@ -6364,13 +6349,14 @@ resolution-markers = [
     "python_full_version >= '3.11' and platform_machine == 'arm64' and sys_platform == 'darwin'",
     "python_full_version < '3.11' and platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin'",
     "python_full_version < '3.11' and platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "python_full_version >= '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux'",
 ]
 dependencies = [
-    { name = "numpy", marker = "(platform_machine != 'x86_64' and sys_platform == 'darwin') or sys_platform == 'linux'" },
-    { name = "perf-analyzer", version = "0.1.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "perf-analyzer", version = "2.59.1", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin') or sys_platform == 'linux'" },
-    { name = "python-rapidjson", marker = "(platform_machine != 'x86_64' and sys_platform == 'darwin') or sys_platform == 'linux'" },
-    { name = "urllib3", marker = "(platform_machine != 'x86_64' and sys_platform == 'darwin') or sys_platform == 'linux'" },
+    { name = "numpy", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "perf-analyzer", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "python-rapidjson", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "urllib3", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c0/65/7ac226d9ec6e044577d209fb54db6bb57ef0afa60976f7b329215a5026f8/tritonclient-2.61.0-py3-none-any.whl", hash = "sha256:e86b47142d2ede7ba2ae566f631358f45d68f0d0ddea7ef93a35c138d570497b", size = 98252, upload-time = "2025-10-07T22:29:54.33Z" },
@@ -6390,17 +6376,17 @@ all = [
     { name = "python-rapidjson", marker = "sys_platform == 'linux'" },
 ]
 grpc = [
-    { name = "grpcio", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "numpy", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "packaging", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "protobuf", version = "5.29.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "python-rapidjson", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
+    { name = "grpcio", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "numpy", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "packaging", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "protobuf", version = "5.29.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "python-rapidjson", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
 ]
 http = [
-    { name = "aiohttp", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "geventhttpclient", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "numpy", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "python-rapidjson", marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
+    { name = "aiohttp", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "geventhttpclient", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "numpy", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "python-rapidjson", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
 ]
 
 [[package]]

@@ -71,11 +71,9 @@ dependencies = [
     "sentencepiece>=0.1.99",
     "sacremoses>=0.0.53",
 
-    # Triton Client
-    # Linux: Full client with perf-analyzer
-    "tritonclient[all]>=2.34.0; sys_platform == 'linux'",
-    # macOS: HTTP/gRPC client only (perf-analyzer is Linux-only)
-    "tritonclient[http,grpc]>=2.34.0; sys_platform == 'darwin'",
+    # Triton Client (HTTP/gRPC only - perf-analyzer is optional)
+    "tritonclient[http,grpc]>=2.34.0",
+    "perf-analyzer==0.1.0",  # Use stub package to avoid manylinux version conflicts
     "grpcio>=1.54.0",
     "protobuf>=3.20.3",
 
@@ -180,6 +178,7 @@ monitoring = [
 # Performance testing
 perf = [
     "locust>=2.15.1",
+    "tritonclient[all]>=2.34.0; sys_platform == 'linux'",  # Includes perf-analyzer for Linux
     # Note: artillery is a Node.js tool, install separately: npm install -g artillery
 ]
 
