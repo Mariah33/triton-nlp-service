@@ -159,4 +159,3 @@ class TritonPythonModel:
 
     def finalize(self) -> None:
         """Clean up resources."""
-        pass

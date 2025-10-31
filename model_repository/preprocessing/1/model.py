@@ -86,7 +86,7 @@ class TritonPythonModel:
 
     def _detect_scripts(self, text: str) -> list[str]:
         """Detect writing scripts in text."""
-        scripts = []
+        scripts: list[str] = []
 
         # Check for various scripts
         if re.search(r"[a-zA-Z]", text):

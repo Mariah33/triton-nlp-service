@@ -322,7 +322,7 @@ class TritonPythonModel:
 
     def _extract_organizations(self, text: str) -> list[dict[str, Any]]:
         """Extract organization names."""
-        entities = []
+        entities: list[Any] = []
 
         # Look for known organizations
         for org in self.entity_patterns["ORGANIZATION"]["keywords"]:

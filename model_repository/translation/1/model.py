@@ -99,8 +99,7 @@ class TritonPythonModel:
                 "how are you": "كيف حالك",
             },
         }
-
-    def execute(self, requests: list) -> list:
+    def execute(self, requests: list[pb_utils.InferenceRequest]) -> list[pb_utils.InferenceResponse]:
         """Execute inference requests."""
         responses = []
 

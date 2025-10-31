@@ -90,7 +90,7 @@ class TritonPythonModel:
 
         return responses
 
-    def _get_string_tensor(self, request: Any, name: str, optional: bool = False) -> list[str]:  # noqa: ANN401
+    def _get_string_tensor(self, request: Any, name: str, optional: bool = False) -> list[str]:
         """Helper to get string tensor values."""
         tensor = pb_utils.get_input_tensor_by_name(request, name)
         if tensor is None:
