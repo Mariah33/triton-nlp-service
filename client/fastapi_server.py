@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             raise ConnectionError(msg)
         logger.info("Connected to Triton server")
         yield
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to connect to Triton server")
         raise
     finally:

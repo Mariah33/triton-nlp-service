@@ -7,8 +7,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-from model_repository.data_type_detector.model import TritonPythonModel
-
 
 # Mock triton_python_backend_utils for testing
 mock_pb_utils = MagicMock()
@@ -32,6 +30,7 @@ class TestDataTypeDetectorML:
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
             # Import after patching
             sys.path.insert(0, "model_repository/data_type_detector_ml/1")
+            from model import TritonPythonModel
 
             model = TritonPythonModel()
             model.model_config = model_config
@@ -214,7 +213,8 @@ class TestDataTypeDetectorRegex:
     def regex_model(self):
         """Create regex-based model for comparison."""
         with patch.dict("sys.modules", {"triton_python_backend_utils": mock_pb_utils}):
-            from model_repository.data_type_detector.model import TritonPythonModel
+            sys.path.insert(0, "model_repository/data_type_detector/1")
+            from model import TritonPythonModel
 
             model = TritonPythonModel()
             model.initialize({"model_config": json.dumps({"name": "data_type_detector"})})
