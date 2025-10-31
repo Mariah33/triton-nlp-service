@@ -23,21 +23,13 @@ import uvicorn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="Triton NLP Service API",
-    description="REST API for NLP services including transliteration, translation, NER, and data type detection",
-    version="1.0.0",
-)
-
 # Thread pool for async operations
 executor = ThreadPoolExecutor(max_workers=10)
 
-# Global Triton client
-triton_client = None
-
 
 class TextRequest(BaseModel):
+    """Request model for text processing."""
+
     text: str = Field(..., description="Input text to process")
     services: list[str] | None = Field(
         default=None,
@@ -48,6 +40,8 @@ class TextRequest(BaseModel):
 
 
 class BatchTextRequest(BaseModel):
+    """Request model for batch text processing."""
+
     texts: list[str] = Field(..., description="List of texts to process")
     services: list[str] | None = Field(default=None)
     source_language: str | None = Field(default="auto")
@@ -55,35 +49,44 @@ class BatchTextRequest(BaseModel):
 
 
 class DataTypeRequest(BaseModel):
+    """Request model for data type detection."""
+
     text: str = Field(..., description="Text to analyze for data type")
 
 
 class TransliterationRequest(BaseModel):
+    """Request model for text transliteration."""
+
     text: str = Field(..., description="Text to transliterate")
     source_script: str | None = Field(default="auto", description="Source script")
     target_script: str | None = Field(default="latin", description="Target script")
 
 
 class TranslationRequest(BaseModel):
+    """Request model for text translation."""
+
     text: str = Field(..., description="Text to translate")
     source_language: str | None = Field(default="auto", description="Source language")
     target_language: str | None = Field(default="en", description="Target language")
 
 
 class NERRequest(BaseModel):
+    """Request model for named entity recognition."""
+
     text: str = Field(..., description="Text for entity extraction")
 
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app_instance: FastAPI) -> AsyncGenerator[None, None]:
     """Lifespan context manager for FastAPI application."""
-    global triton_client
+    triton_client = None
     try:
         triton_client = grpcclient.InferenceServerClient(url="localhost:8001")
         if not triton_client.is_server_live():
             msg = "Triton server is not live"
-            raise ConnectionError(msg)
+            raise ConnectionError(msg) from None
+        app_instance.state.triton_client = triton_client
         logger.info("Connected to Triton server")
         yield
     except Exception:
@@ -123,6 +126,7 @@ async def root() -> dict[str, Any]:
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Health check endpoint."""
+    triton_client = getattr(app.state, "triton_client", None)
     if triton_client and triton_client.is_server_live():
         return {"status": "healthy", "triton": "connected"}
     raise HTTPException(status_code=503, detail="Triton server not available")
@@ -142,11 +146,15 @@ async def list_models() -> dict[str, Any]:
     ]
 
     model_status = {}
+    triton_client = getattr(app.state, "triton_client", None)
+    if not triton_client:
+        return {"models": dict.fromkeys(models, "error - no client")}
+
     for model in models:
         try:
             ready = triton_client.is_model_ready(model)
             model_status[model] = "ready" if ready else "not ready"
-        except:
+        except Exception:
             model_status[model] = "error"
 
     return {"models": model_status}
@@ -188,7 +196,7 @@ async def batch_process_text(request: BatchTextRequest) -> JSONResponse:
         return JSONResponse(content={"results": results})
     except Exception as e:
         logger.exception("Error in batch processing")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/detect_type")
@@ -210,7 +218,7 @@ async def transliterate_text(request: TransliterationRequest) -> JSONResponse:
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("Error transliterating text")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/translate")
@@ -221,7 +229,7 @@ async def translate_text(request: TranslationRequest) -> JSONResponse:
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("Error translating text")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/extract_entities")
@@ -232,7 +240,7 @@ async def extract_entities(request: NERRequest) -> JSONResponse:
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("Error extracting entities")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def run_in_executor(func: Callable[..., Any], *args: Any) -> Any:
@@ -241,8 +249,18 @@ async def run_in_executor(func: Callable[..., Any], *args: Any) -> Any:
     return await loop.run_in_executor(executor, func, *args)
 
 
+def get_triton_client() -> grpcclient.InferenceServerClient:
+    """Get the Triton client from app state."""
+    client = getattr(app.state, "triton_client", None)
+    if not client:
+        msg = "Triton client not initialized"
+        raise RuntimeError(msg)
+    return client
+
+
 def process_with_triton(text: str, services: list[str], source_lang: str, target_lang: str) -> dict:
     """Process text using Triton ensemble model."""
+    triton_client = get_triton_client()
     # Prepare inputs
     text_input = prepare_string_input("text", [text])
     inputs = [text_input]
@@ -273,6 +291,7 @@ def process_with_triton(text: str, services: list[str], source_lang: str, target
 
 def detect_type_with_triton(text: str) -> dict:
     """Detect data type using Triton."""
+    triton_client = get_triton_client()
     inputs = [prepare_string_input("text", [text])]
     outputs = [grpcclient.InferRequestedOutput("detection_result")]
 
@@ -284,6 +303,7 @@ def detect_type_with_triton(text: str) -> dict:
 
 def transliterate_with_triton(text: str, source_script: str, target_script: str) -> dict:
     """Transliterate text using Triton."""
+    triton_client = get_triton_client()
     inputs = [
         prepare_string_input("text", [text]),
         prepare_string_input("source_script", [source_script]),
@@ -299,6 +319,7 @@ def transliterate_with_triton(text: str, source_script: str, target_script: str)
 
 def translate_with_triton(text: str, source_lang: str, target_lang: str) -> dict:
     """Translate text using Triton."""
+    triton_client = get_triton_client()
     inputs = [
         prepare_string_input("text", [text]),
         prepare_string_input("source_language", [source_lang]),
@@ -314,6 +335,7 @@ def translate_with_triton(text: str, source_lang: str, target_lang: str) -> dict
 
 def extract_entities_with_triton(text: str) -> dict:
     """Extract entities using Triton."""
+    triton_client = get_triton_client()
     inputs = [prepare_string_input("text", [text])]
     outputs = [grpcclient.InferRequestedOutput("entities")]
 

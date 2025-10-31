@@ -284,13 +284,11 @@ class TritonPythonModel:
             for text_bytes, source, target in zip(texts, source_scripts, target_scripts, strict=False):
                 text = text_bytes.decode("utf-8") if isinstance(text_bytes, bytes) else str(text_bytes)
 
-                if isinstance(source, bytes):
-                    source = source.decode("utf-8")
-                if isinstance(target, bytes):
-                    target = target.decode("utf-8")
+                source_script = source.decode("utf-8") if isinstance(source, bytes) else source
+                target_script = target.decode("utf-8") if isinstance(target, bytes) else target
 
                 # Perform transliteration
-                result = self._transliterate(text, source, target)
+                result = self._transliterate(text, source_script, target_script)
                 transliterated_results.append(json.dumps(result))
 
             # Create output tensor
