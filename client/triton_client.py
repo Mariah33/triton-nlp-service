@@ -5,13 +5,24 @@ Tests all functionality: transliteration, translation, NER, and data type detect
 
 import argparse
 import json
+import logging
 
 import numpy as np
 import tritonclient.grpc as grpcclient
 import tritonclient.http as httpclient
 
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
 class TritonNLPClient:
+    """Client for Triton NLP Service with comprehensive NLP capabilities."""
+
     def __init__(self, url: str = "localhost:8001", protocol: str = "grpc") -> None:
         """Initialize Triton client.
 
@@ -30,6 +41,8 @@ class TritonNLPClient:
             msg = f"Triton server at {url} is not live"
             raise ConnectionError(msg)
 
+        logger.info(f"Connected to Triton server at {url}")
+
         # Check model status
         self.check_models()
 
@@ -47,9 +60,9 @@ class TritonNLPClient:
 
         for model in required_models:
             if self.client.is_model_ready(model):
-                pass
+                logger.info(f"✓ Model '{model}' is ready")
             else:
-                pass
+                logger.warning(f"✗ Model '{model}' is not ready")
 
     def process_text(
         self,
@@ -224,6 +237,10 @@ def run_tests() -> None:
     """Run comprehensive tests of all NLP services."""
     client = TritonNLPClient()
 
+    logger.info("\n" + "="*60)
+    logger.info("TESTING NLP SERVICES")
+    logger.info("="*60)
+
     # Test cases
     test_cases = [
         {"text": "john.smith@example.com", "description": "Email detection"},
@@ -251,41 +268,68 @@ def run_tests() -> None:
         },
     ]
 
-    for _i, test in enumerate(test_cases, 1):
+    for i, test in enumerate(test_cases, 1):
+        logger.info(f"\nTest {i}: {test['description']}")
+        logger.info(f"Input: {test['text']}")
+        logger.info("-" * 40)
+
         try:
             # Test individual services
 
             # 1. Data Type Detection
+            logger.info("\n1. Data Type Detection:")
             dt_result = client.detect_data_type(test["text"])
+            logger.info(f"   Type: {dt_result.get('primary_type', 'unknown')}")
+            logger.info(f"   Confidence: {dt_result.get('confidence', 0):.2f}")
             if "detections" in dt_result:
-                for _detection in dt_result["detections"][:3]:  # Show first 3
-                    pass
+                for detection in dt_result["detections"][:3]:  # Show first 3
+                    logger.info(f"   - {detection.get('type')}: {detection.get('confidence', 0):.2f}")
 
             # 2. Named Entity Recognition
+            logger.info("\n2. Named Entity Recognition:")
             ner_result = client.extract_entities(test["text"])
+            logger.info(f"   Found {ner_result.get('entity_count', 0)} entities")
             if "entities" in ner_result:
-                for _entity in ner_result["entities"][:5]:  # Show first 5
-                    pass
+                for entity in ner_result["entities"][:5]:  # Show first 5
+                    logger.info(f"   - {entity.get('type')}: {entity.get('text')}")
 
             # 3. Transliteration (if non-Latin text)
             if not all(ord(c) < 128 for c in test["text"] if c.isalpha()):
-                client.transliterate(test["text"])
+                logger.info("\n3. Transliteration:")
+                trans_result = client.transliterate(test["text"])
+                logger.info(f"   Script: {trans_result.get('source_script')} → {trans_result.get('target_script')}")
+                logger.info(f"   Result: {trans_result.get('transliterated', 'N/A')}")
 
             # 4. Translation (if specified)
             if "target_language" in test:
-                client.translate(test["text"], source_language="auto", target_language=test["target_language"])
+                logger.info("\n4. Translation:")
+                translate_result = client.translate(
+                    test["text"],
+                    source_language="auto",
+                    target_language=test["target_language"],
+                )
+                logger.info(f"   Languages: {translate_result.get('source_language')} → {translate_result.get('target_language')}")
+                logger.info(f"   Result: {translate_result.get('translated', 'N/A')}")
 
             # 5. Test ensemble with all services
+            logger.info("\n5. Ensemble (All Services):")
             ensemble_result = client.process_text(
                 test["text"],
                 services=["data_type", "ner", "transliteration", "translation"],
                 target_language=test.get("target_language", "en"),
             )
-            for _finding in ensemble_result.get("summary", {}).get("key_findings", []):
-                pass
+            logger.info(f"   Summary: {len(ensemble_result.get('summary', {}).get('key_findings', []))} key findings")
+            for finding in ensemble_result.get("summary", {}).get("key_findings", []):
+                logger.info(f"   - {finding}")
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"   ERROR: {e!s}")
+
+        logger.info("-" * 40)
+
+    logger.info("\n" + "="*60)
+    logger.info("TESTING COMPLETE")
+    logger.info("="*60)
 
 
 if __name__ == "__main__":
@@ -315,5 +359,6 @@ if __name__ == "__main__":
             source_language=args.source_lang,
             target_language=args.target_lang,
         )
+        logger.info(json.dumps(result, indent=2, ensure_ascii=False))
     else:
-        pass
+        logger.info("Please specify --test or --text")
