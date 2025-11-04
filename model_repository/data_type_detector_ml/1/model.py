@@ -31,7 +31,7 @@ class TritonPythonModel:
             self.pii_tokenizer = AutoTokenizer.from_pretrained("lakshyakh93/deberta_finetuned_pii")
             self.pii_model = AutoModelForSequenceClassification.from_pretrained("lakshyakh93/deberta_finetuned_pii").to(self.device)
             self.pii_model.eval()
-        except:
+        except Exception:
             self.pii_model = None
 
         # Google's Universal Sentence Encoder for similarity-based detection
@@ -44,7 +44,7 @@ class TritonPythonModel:
 
             # Pre-compute embeddings for known data type examples
             self._initialize_reference_embeddings()
-        except:
+        except Exception:
             self.sentence_encoder = None
 
         # Hugging Face pipeline for token classification (NER-style)
@@ -55,7 +55,7 @@ class TritonPythonModel:
                 model="dslim/bert-base-NER",
                 device=0 if torch.cuda.is_available() else -1,
             )
-        except:
+        except Exception:
             self.token_classifier = None
 
         # Load specialized models for specific data types
@@ -70,7 +70,7 @@ class TritonPythonModel:
                 model="facebook/bart-large-mnli",
                 device=0 if torch.cuda.is_available() else -1,
             )
-        except:
+        except Exception:
             self.zero_shot_classifier = None
 
         # Define data type labels for zero-shot classification
@@ -157,7 +157,7 @@ class TritonPythonModel:
                 model="philomath-1209/credit-card-detection",
                 device=0 if torch.cuda.is_available() else -1,
             )
-        except:
+        except Exception:
             self.credit_card_detector = None
 
         # PII detection using Microsoft Presidio (if available)
@@ -175,7 +175,7 @@ class TritonPythonModel:
 
             # Create analyzer engine
             self.presidio_analyzer = AnalyzerEngine(nlp_engine=provider.create_engine(), supported_languages=["en"])
-        except:
+        except Exception:
             self.presidio_analyzer = None
 
         # Email validation using specialized model
@@ -183,7 +183,7 @@ class TritonPythonModel:
             from email_validator import validate_email
 
             self.email_validator = validate_email
-        except:
+        except Exception:
             self.email_validator = None
 
     def execute(self, requests):
@@ -349,7 +349,7 @@ class TritonPythonModel:
             phone_result = self._detect_phone_with_library(text)
             if phone_result:
                 detections.append(phone_result)
-        except:
+        except Exception:  # noqa: S110
             pass
 
         # 7. Use specialized credit card detector if available
@@ -366,7 +366,7 @@ class TritonPythonModel:
                             "category": "financial",
                         }
                     )
-            except:
+            except Exception:  # noqa: S110
                 pass
 
         # Remove duplicates and keep highest confidence for each type
@@ -408,7 +408,7 @@ class TritonPythonModel:
                                 "method": "phonenumbers_library",
                                 "category": "contact",
                             }
-                    except:
+                    except Exception:
                         continue
 
             if phonenumbers.is_valid_number(parsed):
@@ -420,7 +420,7 @@ class TritonPythonModel:
                     "method": "phonenumbers_library",
                     "category": "contact",
                 }
-        except:
+        except Exception:  # noqa: S110
             pass
         return None
 

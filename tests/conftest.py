@@ -126,7 +126,7 @@ def reset_environment():
 
 # Performance tracking
 @pytest.fixture
-def track_performance(request):
+def track_performance(_request):
     """Track test performance."""
     import time
 

@@ -259,7 +259,7 @@ class TritonPythonModel:
                                 "value": text,
                                 "category": "contact",
                             }
-                    except:
+                    except Exception:
                         continue
 
             if phonenumbers.is_valid_number(parsed):
@@ -270,7 +270,7 @@ class TritonPythonModel:
                     "value": text,
                     "category": "contact",
                 }
-        except:
+        except Exception:
             # Check if it looks like a phone number
             phone_pattern = r"^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,5}[-\s\.]?[0-9]{1,5}$"
             if re.match(phone_pattern, text):
